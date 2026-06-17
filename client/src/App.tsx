@@ -18,6 +18,8 @@ import AuditReportPage from './pages/AuditReportPage';
 import SynthesePage from './pages/SynthesePage';
 import CahierTravailPage from './pages/CahierTravailPage';
 import ExportFiscalPage from './pages/ExportFiscalPage';
+import SigPage from './pages/SigPage';
+import LiasseFiscalePage from './pages/LiasseFiscalePage';
 import AuditTrailPage from './pages/AuditTrailPage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
@@ -95,6 +97,8 @@ export default function App() {
         <Route path="projects/:id/synthese" element={<SynthesePage />} />
         <Route path="projects/:id/cahier-travail" element={<CahierTravailPage />} />
         <Route path="projects/:id/export" element={<ExportFiscalPage />} />
+        <Route path="projects/:id/sig" element={<SigPage />} />
+        <Route path="projects/:id/liasse-fiscale" element={<LiasseFiscalePage />} />
         <Route path="audit-trail" element={<AuditTrailPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="profile" element={<ProfilePage />} />

@@ -24,6 +24,7 @@ import {
   Info,
   Bell,
   LogOut,
+  TrendingUp,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -66,9 +67,14 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
     ]},
     { section: 'nav.statements', items: [
       { path: '/projects', label: 'nav.transactions', icon: ArrowLeftRight, needsProject: true },
-      { path: '/balance', label: 'nav.balance', icon: Scale, needsProject: true },
-      { path: '/journal', label: 'nav.journal', icon: BookOpen, needsProject: true },
-      { path: '/grand-livre', label: 'nav.grand-livre', icon: BookText, needsProject: true },
+      { path: '/bilan', label: 'Bilan', icon: Scale, needsProject: true },
+      { path: '/cpc', label: 'CPC', icon: Receipt, needsProject: true },
+      { path: '/balance', label: 'Balance', icon: BookOpen, needsProject: true },
+      { path: '/journal', label: 'Journal', icon: BookText, needsProject: true },
+      { path: '/grand-livre', label: 'Grand Livre', icon: ScrollText, needsProject: true },
+      { path: '/tva', label: 'TVA', icon: FileCheck, needsProject: true },
+      { path: '/sig', label: 'SIG', icon: TrendingUp, needsProject: true },
+      { path: '/liasse-fiscale', label: 'Liasse Fiscale', icon: FileText, needsProject: true },
     ]},
     { section: 'nav.audit', items: [
       { path: '/anomalies', label: 'nav.anomalies', icon: AlertTriangle, needsProject: true, badge: true },

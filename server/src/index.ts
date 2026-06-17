@@ -17,6 +17,7 @@ import demoRoutes from './routes/demo';
 import ownerRoutes from './routes/owner';
 import clientRoutes from './routes/client';
 import financialRoutes from './routes/financials';
+import exportRoutes from './routes/exports';
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.use('/api/demo', demoRoutes);
 app.use('/api/owner', ownerRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api', financialRoutes);
+app.use('/api', exportRoutes);
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Unhandled error:', err);

@@ -8,6 +8,8 @@ import {
   getJournal,
   getGrandLivre,
   getTva,
+  getSIG,
+  getLiasseFiscale,
 } from '../services/financialService';
 
 const router = Router();
@@ -116,6 +118,40 @@ router.get('/projects/:projectId/tva', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('TVA error:', err);
     res.status(500).json({ error: 'Erreur lors de la récupération de la déclaration TVA' });
+  }
+});
+
+router.get('/projects/:projectId/liasse-fiscale', async (req: Request, res: Response) => {
+  try {
+    const project = await prisma.project.findFirst({
+      where: { id: req.params.projectId, userId: req.user!.userId },
+    });
+    if (!project) {
+      res.status(404).json({ error: 'Projet introuvable' });
+      return;
+    }
+    const data = await getLiasseFiscale(req.params.projectId);
+    res.json({ data });
+  } catch (err) {
+    console.error('Liasse fiscale error:', err);
+    res.status(500).json({ error: 'Erreur lors de la génération de la liasse fiscale' });
+  }
+});
+
+router.get('/projects/:projectId/sig', async (req: Request, res: Response) => {
+  try {
+    const project = await prisma.project.findFirst({
+      where: { id: req.params.projectId, userId: req.user!.userId },
+    });
+    if (!project) {
+      res.status(404).json({ error: 'Projet introuvable' });
+      return;
+    }
+    const data = await getSIG(req.params.projectId);
+    res.json({ data });
+  } catch (err) {
+    console.error('SIG error:', err);
+    res.status(500).json({ error: 'Erreur lors du calcul des SIG' });
   }
 });
 

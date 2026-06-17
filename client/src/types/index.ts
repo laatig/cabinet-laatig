@@ -234,3 +234,22 @@ export interface GrandLivreEntry {
   credit: number;
   solde: number;
 }
+
+export interface SigEntry {
+  label: string;
+  montant: number;
+  level: number;
+  isTotal?: boolean;
+  isSubtotal?: boolean;
+}
+
+export interface LiasseItem {
+  label: string;
+  valeur: string | number;
+  format?: 'number' | 'text' | 'date';
+}
+
+export interface LiasseSection {
+  section: string;
+  items: LiasseItem[];
+}
