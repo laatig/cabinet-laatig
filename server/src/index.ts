@@ -19,6 +19,8 @@ import clientRoutes from './routes/client';
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: config.corsOrigin,
   credentials: true,
@@ -35,6 +37,7 @@ const globalLimiter = rateLimit({
   max: 500,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { error: 'Trop de requêtes. Réessayez plus tard.' },
 });
 app.use(globalLimiter);

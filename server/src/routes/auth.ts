@@ -16,6 +16,7 @@ const authLimiter = rateLimit({
   message: { error: 'Trop de tentatives. Réessayez dans une minute.' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
 });
 
 const userSelect = {
