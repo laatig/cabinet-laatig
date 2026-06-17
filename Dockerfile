@@ -24,4 +24,4 @@ EXPOSE 3001
 
 RUN cd server && npx --package prisma@6.5.0 -- prisma generate
 
-CMD cd server && npx --package prisma@6.5.0 -- prisma migrate deploy && cd .. && npm start
+CMD cd server && npx --package prisma@6.5.0 -- prisma db push --accept-data-loss && npx --package prisma@6.5.0 -- prisma db seed && cd .. && npm start
