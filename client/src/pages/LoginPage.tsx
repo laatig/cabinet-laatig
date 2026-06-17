@@ -63,101 +63,93 @@ export default function LoginPage() {
   return (
     <div className="login-shell">
       <div className="login-left">
-        <div className="login-seal">CL</div>
-        <div className="login-left-brand">CABINET LAATIG</div>
-        <div className="login-left-tagline">{t('app.tagline', lang)}</div>
-        {mode === 'login' && (
-          <div style={{ marginTop: 'auto', marginBottom: 40, textAlign: 'center', color: 'var(--cl-text-secondary)', fontSize: 13, lineHeight: 1.6 }}>
-            Vous êtes un nouveau client ?<br />
-            Créez votre espace pour nous transmettre<br />
-            vos documents comptables en toute sécurité.
+        <div className="login-brand">CABINET LAATIG</div>
+        <div className="login-tagline-line">Intelligence Artificielle</div>
+        <div className="login-tagline-line">Expertise Humaine</div>
+        <div className="login-tagline-line">Certification Marocaine</div>
+        <div className="login-seal">MA</div>
+        <div style={{ marginTop: 'auto', marginBottom: 40 }}>
+          <div style={{ fontSize: 11, color: 'var(--cl-gold-dim)', letterSpacing: '0.14em', textTransform: 'uppercase', lineHeight: 2 }}>
+            Plateforme d'expertise comptable et d'audit
           </div>
-        )}
-        <div className="login-left-footer">Maroc · Depuis 2009</div>
+          <div style={{ fontSize: 11, color: 'var(--cl-gold-dim)', letterSpacing: '0.14em', textTransform: 'uppercase', lineHeight: 2 }}>
+            opérée par <span style={{ color: 'var(--cl-gold)' }}>Mustapha Atiq</span>
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--cl-gold-dim)', letterSpacing: '0.14em', textTransform: 'uppercase', lineHeight: 2 }}>
+            Master CCA — Université Ibn Zohr, Agadir
+          </div>
+        </div>
+        <div style={{ fontSize: 9, color: 'var(--cl-text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+          Cabinet Laatig — Agadir · Maroc
+        </div>
       </div>
       <div className="login-right">
         <div className="login-form-card">
-          <div className="login-tabs">
-            <button
-              className={`login-tab ${mode === 'login' ? 'active' : ''}`}
-              onClick={() => setMode('login')}
-            >
-              Connexion
-            </button>
-            <button
-              className={`login-tab ${mode === 'register' ? 'active' : ''}`}
-              onClick={() => setMode('register')}
-            >
-              Inscription
-            </button>
+          <div className="login-welcome">
+            {mode === 'login' ? 'Bienvenue' : 'Créer un compte'}
+          </div>
+          <div className="login-subtitle">
+            {mode === 'login'
+              ? 'Connectez-vous à votre espace Cabinet Laatig'
+              : 'Créez votre espace pour nous transmettre vos documents comptables'}
           </div>
 
           {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
 
           {mode === 'login' ? (
-            <form className="login-form" onSubmit={handleLogin}>
+            <form onSubmit={handleLogin}>
               <div className="form-group">
                 <label className="form-label">Adresse e-mail</label>
                 <input className="form-input" type="email" value={email}
-                  onChange={e => setEmail(e.target.value)} placeholder="expert@cabinet-laatig.ma" required autoFocus />
+                  onChange={e => setEmail(e.target.value)} placeholder="expert@cabinetlaatig.ma" required autoFocus />
               </div>
               <div className="form-group">
                 <label className="form-label">Mot de passe</label>
                 <input className="form-input" type="password" value={password}
                   onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
               </div>
-              <button className="login-btn" type="submit" disabled={loading}>
+              <button className="btn btn-primary btn-full" type="submit" disabled={loading}>
                 {loading ? 'Connexion...' : 'Se connecter'}
               </button>
               <div style={{ textAlign: 'center', marginTop: 16 }}>
-                <span style={{ color: 'var(--cl-text-secondary)', fontSize: 13 }}>
-                  Pas encore de compte ?{' '}
-                </span>
                 <button type="button" onClick={() => setMode('register')}
-                  style={{ background: 'none', border: 'none', color: 'var(--cl-gold)', cursor: 'pointer', fontSize: 13, textDecoration: 'underline' }}>
-                  Créer un compte
+                  style={{ background: 'none', border: 'none', color: 'var(--cl-gold-dim)', cursor: 'pointer', fontSize: 12, letterSpacing: '0.04em' }}>
+                  Pas encore de compte ? Créer un espace
                 </button>
               </div>
             </form>
           ) : (
-            <form className="login-form" onSubmit={handleRegister}>
+            <form onSubmit={handleRegister}>
               <div className="form-group">
                 <label className="form-label">Nom complet *</label>
-                <input className="form-input" type="text" value={fullName}
-                  onChange={e => setFullName(e.target.value)} required />
+                <input className="form-input" type="text" value={fullName} onChange={e => setFullName(e.target.value)} required />
               </div>
               <div className="form-group">
                 <label className="form-label">Adresse e-mail *</label>
-                <input className="form-input" type="email" value={email}
-                  onChange={e => setEmail(e.target.value)} required />
+                <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
               </div>
               <div className="form-group">
                 <label className="form-label">Mot de passe *</label>
-                <input className="form-input" type="password" value={password}
-                  onChange={e => setPassword(e.target.value)} placeholder="Min. 6 caractères" required />
+                <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 6 caractères" required />
               </div>
               <div className="form-group">
                 <label className="form-label">Raison sociale</label>
-                <input className="form-input" type="text" value={raisonSociale}
-                  onChange={e => setRaisonSociale(e.target.value)} placeholder="Nom de votre entreprise" />
+                <input className="form-input" type="text" value={raisonSociale} onChange={e => setRaisonSociale(e.target.value)} placeholder="Nom de votre entreprise" />
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">ICE</label>
-                  <input className="form-input" type="text" value={clientICE}
-                    onChange={e => setClientICE(e.target.value)} />
+                  <input className="form-input" type="text" value={clientICE} onChange={e => setClientICE(e.target.value)} />
                 </div>
                 <div className="form-group">
                   <label className="form-label">RC</label>
-                  <input className="form-input" type="text" value={clientRC}
-                    onChange={e => setClientRC(e.target.value)} />
+                  <input className="form-input" type="text" value={clientRC} onChange={e => setClientRC(e.target.value)} />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Forme juridique</label>
-                  <select className="form-input" value={formeJuridique}
-                    onChange={e => setFormeJuridique(e.target.value)}>
+                  <select className="form-input" value={formeJuridique} onChange={e => setFormeJuridique(e.target.value)}>
                     <option value="">Sélectionner...</option>
                     <option value="SARL">SARL</option>
                     <option value="SA">SA</option>
@@ -169,19 +161,25 @@ export default function LoginPage() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Téléphone</label>
-                  <input className="form-input" type="tel" value={phoneNumber}
-                    onChange={e => setPhoneNumber(e.target.value)} />
+                  <input className="form-input" type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
                 </div>
               </div>
-              <button className="login-btn" type="submit" disabled={loading}>
+              <button className="btn btn-primary btn-full" type="submit" disabled={loading}>
                 {loading ? 'Inscription...' : "S'inscrire"}
               </button>
+              <div style={{ textAlign: 'center', marginTop: 16 }}>
+                <button type="button" onClick={() => setMode('login')}
+                  style={{ background: 'none', border: 'none', color: 'var(--cl-gold-dim)', cursor: 'pointer', fontSize: 12, letterSpacing: '0.04em' }}>
+                  Déjà un compte ? Se connecter
+                </button>
+              </div>
             </form>
           )}
         </div>
         <div className="login-credit">
-          Dirigé par <strong>Mustapha Atiq</strong><br />
-          Expert-Comptable · Commissaire aux Comptes
+          Plateforme d'expertise comptable et d'audit<br />
+          opérée par <strong>Mustapha Atiq</strong><br />
+          <span style={{ fontSize: 10, color: 'var(--cl-text-muted)' }}>Master CCA — Université Ibn Zohr, Agadir</span>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 export const translations: Record<string, Record<string, string>> = {
   fr: {
     'app.name': 'Cabinet Laatig',
-    'app.tagline': 'Expertise Comptable & Audit',
+    'app.tagline': 'Intelligence Artificielle • Expertise Humaine • Certification Marocaine',
     'nav.dashboard': 'Tableau de Bord',
     'nav.projects': 'Projets / Dossiers',
     'nav.documents': 'Documents',
@@ -236,7 +236,7 @@ export const translations: Record<string, Record<string, string>> = {
   },
   ar: {
     'app.name': 'كابينه لعتّيق',
-    'app.tagline': 'خبرة محاسبة و تدقيق',
+    'app.tagline': 'ذكاء اصطناعي • خبرة بشرية • اعتماد مغربي',
     'nav.dashboard': 'لوحة القيادة',
     'nav.projects': 'المشاريع / الملفات',
     'nav.documents': 'الوثائق',

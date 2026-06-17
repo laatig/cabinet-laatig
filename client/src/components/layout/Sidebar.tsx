@@ -120,7 +120,7 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
         {!collapsed && (
           <div>
             <div className="logo-wordmark">CABINET LAATIG</div>
-            <div className="logo-tagline">Expertise Comptable & Audit</div>
+            <div className="logo-tagline">Intelligence Artificielle • Expertise Humaine • Certification Marocaine</div>
           </div>
         )}
       </div>

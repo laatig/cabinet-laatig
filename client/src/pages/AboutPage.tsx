@@ -1,96 +1,115 @@
+import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../lib/translations';
-import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function AboutPage() {
   const { lang } = useLanguage();
 
   const timeline = [
-    { year: '2020', degree: 'Diplôme Supérieur en Expertise Comptable', school: 'ISCAE — Casablanca' },
-    { year: '2015', degree: 'Master en Audit et Contrôle de Gestion', school: 'Université Hassan II — Casablanca' },
-    { year: '2012', degree: 'Licence en Sciences de Gestion', school: 'Université Hassan II — Casablanca' },
-    { year: '2009', degree: 'Baccalauréat Sciences Économiques', school: 'Lycée Lyautey — Casablanca' },
+    { degree: 'Master — Comptabilité, Contrôle et Audit (CCA)', school: 'Université Ibn Zohr — FSJES, Agadir' },
+    { degree: 'Licence — Comptabilité, Contrôle et Audit (CCA)', school: 'Université Ibn Zohr, Agadir' },
+    { degree: 'DUT — Gestion des Entreprises et des Administrations', school: 'Université Ibn Zohr — IUT, Agadir' },
+    { degree: 'Baccalauréat — Sciences Comptables', school: 'Agadir, Maroc' },
   ];
 
   const skills = [
-    'Expertise Comptable', 'Audit Légal', 'Commissariat aux Comptes',
-    'Fiscalité Marocaine', 'Droit des Sociétés', 'Consolidation',
-    'Normes IFRS', 'Comptabilité Analytique', 'Gestion de Trésorerie',
-    'Due Diligence', 'Évaluation d\'Entreprises', 'Sage 1000',
-    'Darija Compta', 'Ciel Compta', 'Excel Avancé',
+    'Sage', 'Ciel', 'EBP', 'Odoo', 'CaseWare', 'IDEA', 'Excel Avancé', 'Power BI',
   ];
 
   const languages = [
-    { name: t('about.arabic', lang), level: 'C2' },
-    { name: t('about.french', lang), level: 'C2' },
-    { name: t('about.english', lang), level: 'B2' },
+    { name: 'Arabe', level: 'Langue maternelle', flag: '🇲🇦' },
+    { name: 'Français', level: 'Courant', flag: '🇫🇷' },
+    { name: 'Anglais', level: 'Professionnel', flag: '🇬🇧' },
+    { name: 'Espagnol', level: 'Intermédiaire', flag: '🇪🇸' },
   ];
 
   return (
     <div className="about-shell">
-      <div className="about-hero">
-        <div className="about-photo">MA</div>
-        <div className="about-name">Mustapha Atiq</div>
-        <div className="about-title">Expert-Comptable · Commissaire aux Comptes</div>
-        <div className="about-contact">
-          <div className="about-contact-item"><Mail size={14} /> expert@cabinet-laatig.ma</div>
-          <div className="about-contact-item"><Phone size={14} /> +212 5XX XX XX XX</div>
-          <div className="about-contact-item"><MapPin size={14} /> Casablanca, Maroc</div>
-        </div>
-        <div className="page-gold-rule" style={{ margin: '20px auto' }} />
+      <div className="page-header">
+        <h1 className="page-title">À Propos</h1>
+        <div className="page-gold-rule" />
       </div>
 
-      <div className="about-bio" dangerouslySetInnerHTML={{ __html: t('about.bio', lang) }} />
-
       <div className="about-grid">
-        <div className="panel">
-          <div className="panel-header">
-            <span className="panel-title">{t('about.education', lang)}</span>
+        <div>
+          <div className="about-photo">MA</div>
+          <div className="about-name">Mustapha Atiq</div>
+          <div className="about-role">Expert-Comptable & Auditeur</div>
+
+          <div style={{ marginTop: 20 }}>
+            <div className="contact-item">
+              <MapPin size={14} style={{ color: 'var(--cl-gold-dim)' }} />
+              <span>Agadir, Maroc</span>
+            </div>
+            <div className="contact-item">
+              <Mail size={14} style={{ color: 'var(--cl-gold-dim)' }} />
+              <span>contact@cabinetlaatig.ma</span>
+            </div>
+            <div className="contact-item">
+              <Phone size={14} style={{ color: 'var(--cl-gold-dim)' }} />
+              <span>+212 528 000 000</span>
+            </div>
+            <div className="contact-item">
+              <Globe size={14} style={{ color: 'var(--cl-gold-dim)' }} />
+              <span>www.cabinetlaatig.ma</span>
+            </div>
           </div>
-          <div className="panel-body">
+        </div>
+
+        <div>
+          <div className="panel" style={{ marginBottom: 24 }}>
+            <div className="panel-title">Bio</div>
+            <p style={{ fontSize: 13, color: 'var(--cl-text-secondary)', lineHeight: 1.8 }}>
+              Mustapha Atiq est un expert-comptable et auditeur marocain spécialisé en audit financier,
+              contrôle de gestion et technologies financières. Diplômé de l'Université Ibn Zohr d'Agadir,
+              il maîtrise les normes comptables du CGNC et les pratiques d'audit conformes aux standards
+              de l'Ordre des Experts Comptables du Maroc (OEC). Il combine expertise humaine et intelligence
+              artificielle pour offrir à ses clients des missions d'audit et de comptabilité d'une précision
+              et d'une efficacité inégalées.
+            </p>
+          </div>
+
+          <div className="panel" style={{ marginBottom: 24 }}>
+            <div className="panel-title">Formation</div>
             <div className="timeline">
-              {timeline.map((item) => (
-                <div key={item.year} className="timeline-item">
-                  <div className="timeline-year">{item.year}</div>
+              {timeline.map((item, i) => (
+                <div key={i} className="timeline-item">
                   <div className="timeline-degree">{item.degree}</div>
                   <div className="timeline-school">{item.school}</div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-title">{t('about.skills', lang)}</span>
-            </div>
-            <div className="panel-body">
-              <div className="skills-grid">
-                {skills.map((skill) => (
-                  <span key={skill} className="skill-pill">{skill}</span>
-                ))}
+          <div className="panel" style={{ marginBottom: 24 }}>
+            <div className="panel-title">Langues</div>
+            {languages.map((langItem) => (
+              <div key={langItem.name} className="contact-item" style={{ marginTop: 6 }}>
+                <span>{langItem.flag}</span>
+                <span style={{ color: 'var(--cl-text-primary)', fontSize: 13 }}>{langItem.name}</span>
+                <span style={{ color: 'var(--cl-text-muted)', fontSize: 11, marginLeft: 4 }}>— {langItem.level}</span>
               </div>
-            </div>
+            ))}
           </div>
 
           <div className="panel">
-            <div className="panel-header">
-              <span className="panel-title">{t('about.languages', lang)}</span>
-            </div>
-            <div className="panel-body">
-              {languages.map((langItem) => (
-                <div key={langItem.name} className="language-item">
-                  <span className="language-name">{langItem.name}</span>
-                  <span className="language-level">{langItem.level}</span>
-                </div>
+            <div className="panel-title">Maîtrise logicielle</div>
+            <div className="skills-wrap">
+              {skills.map((skill) => (
+                <span key={skill} className="skill-pill">{skill}</span>
               ))}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="about-quote">{t('about.quote', lang)}</div>
+      <div style={{
+        marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--cl-border)',
+        textAlign: 'center', fontSize: 11, color: 'var(--cl-text-muted)', lineHeight: 1.8
+      }}>
+        Cabinet Laatig — plateforme conçue par et pour Mustapha Atiq, alliant intelligence artificielle
+        et expertise humaine pour l'audit et la comptabilité marocains de nouvelle génération.
+      </div>
     </div>
   );
 }
