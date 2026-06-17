@@ -302,6 +302,146 @@ async function main() {
     });
   }
 
+  // Create Journal Entries for project 1 (Balance/Journal/Grand Livre)
+  console.log('Seeding journal entries...');
+  const jeProject1 = project1.id;
+  const jan2 = new Date('2024-01-02');
+  const jan3 = new Date('2024-01-03');
+  const jan10 = new Date('2024-01-10');
+  const jan15 = new Date('2024-01-15');
+  const jan28 = new Date('2024-01-28');
+  const jan30 = new Date('2024-01-30');
+  const feb1 = new Date('2024-02-01');
+  const feb5 = new Date('2024-02-05');
+  const feb10 = new Date('2024-02-10');
+  const feb28 = new Date('2024-02-28');
+  const mar1 = new Date('2024-03-01');
+  const mar5 = new Date('2024-03-05');
+  const mar10 = new Date('2024-03-10');
+
+  interface JELine { accountNumber: string; debit: number; credit: number }
+
+  const journalEntries: { date: Date; description: string; reference: string; lines: JELine[] }[] = [
+    {
+      date: jan2, reference: 'AJ-001', description: 'Apport en capital',
+      lines: [
+        { accountNumber: '5121', debit: 500000, credit: 0 },
+        { accountNumber: '1011', debit: 0, credit: 500000 },
+      ],
+    },
+    {
+      date: jan3, reference: 'AJ-002', description: 'Souscription emprunt bancaire',
+      lines: [
+        { accountNumber: '5121', debit: 500000, credit: 0 },
+        { accountNumber: '1531', debit: 0, credit: 500000 },
+      ],
+    },
+    {
+      date: jan10, reference: 'AJ-003', description: 'Achat marchandises - Fournisseur',
+      lines: [
+        { accountNumber: '6111', debit: 100000, credit: 0 },
+        { accountNumber: '4455', debit: 20000, credit: 0 },
+        { accountNumber: '4411', debit: 0, credit: 120000 },
+      ],
+    },
+    {
+      date: jan15, reference: 'AJ-004', description: 'Ventes - Client principal',
+      lines: [
+        { accountNumber: '3421', debit: 240000, credit: 0 },
+        { accountNumber: '7111', debit: 0, credit: 200000 },
+        { accountNumber: '4456', debit: 0, credit: 40000 },
+      ],
+    },
+    {
+      date: jan28, reference: 'AJ-005', description: 'Salaires janvier',
+      lines: [
+        { accountNumber: '6171', debit: 72000, credit: 0 },
+        { accountNumber: '4431', debit: 0, credit: 72000 },
+      ],
+    },
+    {
+      date: jan30, reference: 'AJ-006', description: 'Virement salaires',
+      lines: [
+        { accountNumber: '4431', debit: 72000, credit: 0 },
+        { accountNumber: '5121', debit: 0, credit: 72000 },
+      ],
+    },
+    {
+      date: feb1, reference: 'AJ-007', description: 'Loyer local professionnel',
+      lines: [
+        { accountNumber: '6131', debit: 36000, credit: 0 },
+        { accountNumber: '4455', debit: 7200, credit: 0 },
+        { accountNumber: '4411', debit: 0, credit: 43200 },
+      ],
+    },
+    {
+      date: feb5, reference: 'AJ-008', description: 'Électricité et eau',
+      lines: [
+        { accountNumber: '6132', debit: 12000, credit: 0 },
+        { accountNumber: '4455', debit: 2400, credit: 0 },
+        { accountNumber: '4411', debit: 0, credit: 14400 },
+      ],
+    },
+    {
+      date: feb10, reference: 'AJ-009', description: 'Acquisition matériel outillage',
+      lines: [
+        { accountNumber: '2341', debit: 80000, credit: 0 },
+        { accountNumber: '4455', debit: 16000, credit: 0 },
+        { accountNumber: '4411', debit: 0, credit: 96000 },
+      ],
+    },
+    {
+      date: feb28, reference: 'AJ-010', description: 'Dotation amortissements',
+      lines: [
+        { accountNumber: '6511', debit: 15000, credit: 0 },
+        { accountNumber: '2811', debit: 0, credit: 15000 },
+      ],
+    },
+    {
+      date: mar1, reference: 'AJ-011', description: 'Échéance emprunt',
+      lines: [
+        { accountNumber: '1531', debit: 50000, credit: 0 },
+        { accountNumber: '5121', debit: 0, credit: 50000 },
+      ],
+    },
+    {
+      date: mar5, reference: 'AJ-012', description: 'Encaissement client',
+      lines: [
+        { accountNumber: '5121', debit: 200000, credit: 0 },
+        { accountNumber: '3421', debit: 0, credit: 200000 },
+      ],
+    },
+    {
+      date: mar10, reference: 'AJ-013', description: 'Règlement fournisseurs',
+      lines: [
+        { accountNumber: '4411', debit: 200000, credit: 0 },
+        { accountNumber: '5121', debit: 0, credit: 200000 },
+      ],
+    },
+  ];
+
+  // Look up PCM account IDs for account numbers
+  const allAccounts = await prisma.pcmAccount.findMany();
+  const accountMap = new Map(allAccounts.map(a => [a.accountNumber, a.id]));
+
+  for (const je of journalEntries) {
+    for (const line of je.lines) {
+      await prisma.journalEntry.create({
+        data: {
+          projectId: jeProject1,
+          date: je.date,
+          reference: je.reference,
+          description: je.description,
+          accountNumber: line.accountNumber,
+          pcmAccountId: accountMap.get(line.accountNumber) || null,
+          debit: line.debit,
+          credit: line.credit,
+        },
+      });
+    }
+  }
+  console.log(`Created ${journalEntries.length} journal entry groups`);
+
   // Create some anomalies on project 1
   const anomalyTransaction1 = await prisma.transaction.findFirst({
     where: { projectId: project1.id, vendorName: 'Maroc Telecom', documentNumber: 'MT-2024-002' },
