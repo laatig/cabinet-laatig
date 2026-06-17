@@ -1,14 +1,22 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/database';
-import { authMiddleware } from '../middleware/auth';
+import { authMiddleware, ownerMiddleware } from '../middleware/auth';
 import { upload } from '../middleware/upload';
-import { extractDocument } from '../services/groq';
-import { notifyExtractionComplete } from '../services/notificationService';
+import { extractDocument, createExtractionRecord } from '../services/extraction';
+import { notifyExtractionComplete, notifyDocumentUploaded } from '../services/notificationService';
+import { createAuditLog } from './auditLog';
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
+
+function getFileType(ext: string): string {
+  const map: Record<string, string> = {
+    '.pdf': 'pdf', '.csv': 'csv', '.xlsx': 'xlsx', '.xls': 'xlsx',
+    '.jpg': 'image', '.jpeg': 'image', '.png': 'image', '.tiff': 'image',
+  };
+  return map[ext.toLowerCase()] || 'other';
+}
 
 router.use(authMiddleware);
 
@@ -28,10 +36,13 @@ router.post('/projects/:projectId/documents/upload', upload.array('files', 10), 
       return;
     }
 
+    const category = (req.body.category || 'PIECE_JUSTIFICATIVE').toUpperCase();
+    const fiscalYear = req.body.fiscalYear ? parseInt(req.body.fiscalYear) : project.fiscalYearStart.getFullYear();
+
     const documents = [];
     for (const file of files) {
       const ext = path.extname(file.originalname).toLowerCase();
-      const fileType = ext === '.pdf' ? 'pdf' : ext === '.csv' ? 'csv' : ext === '.xlsx' ? 'xlsx' : 'image';
+      const fileType = getFileType(ext);
       const doc = await prisma.document.create({
         data: {
           projectId: req.params.projectId,
@@ -39,10 +50,16 @@ router.post('/projects/:projectId/documents/upload', upload.array('files', 10), 
           fileType,
           filePath: file.path,
           pageCount: 1,
+          category: category as any,
+          fiscalYear,
         },
       });
       documents.push(doc);
     }
+
+    await notifyDocumentUploaded(req.params.projectId, files.map(f => f.originalname).join(', '), req.user!.userId);
+    await createAuditLog(req.user!.userId, req.params.projectId, 'DOCUMENTS_UPLOADED',
+      { count: files.length, category });
 
     res.status(201).json({ documents });
   } catch (err) {
@@ -62,7 +79,10 @@ router.get('/projects/:projectId/documents', async (req: Request, res: Response)
     }
     const documents = await prisma.document.findMany({
       where: { projectId: req.params.projectId },
-      include: { _count: { select: { transactions: true } } },
+      include: {
+        _count: { select: { transactions: true } },
+        extractions: { include: { fields: true }, orderBy: { processedAt: 'desc' }, take: 1 },
+      },
       orderBy: { createdAt: 'desc' },
     });
     res.json({ documents });
@@ -76,11 +96,17 @@ router.get('/documents/:id', async (req: Request, res: Response) => {
   try {
     const doc = await prisma.document.findFirst({
       where: { id: req.params.id },
-      include: { transactions: true, project: { select: { userId: true } } },
+      include: {
+        transactions: true,
+        extractions: { include: { fields: true }, orderBy: { processedAt: 'desc' } },
+        project: { select: { userId: true, clientName: true } },
+      },
     });
     if (!doc || doc.project.userId !== req.user!.userId) {
-      res.status(404).json({ error: 'Document introuvable' });
-      return;
+      if (req.user!.role !== 'OWNER') {
+        res.status(404).json({ error: 'Document introuvable' });
+        return;
+      }
     }
     res.json({ document: doc });
   } catch (err) {
@@ -95,55 +121,51 @@ router.post('/documents/:id/process', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       include: { project: { select: { userId: true } } },
     });
-    if (!doc || doc.project.userId !== req.user!.userId) {
+    if (!doc) {
       res.status(404).json({ error: 'Document introuvable' });
       return;
     }
 
-    if (doc.fileType === 'image' || doc.fileType === 'pdf') {
-      await prisma.document.update({ where: { id: doc.id }, data: { status: 'PROCESSING' } });
+    if (doc.fileType !== 'image' && doc.fileType !== 'pdf') {
+      res.status(400).json({ error: 'Seuls les images et PDFs peuvent être traités par l\'IA' });
+      return;
+    }
 
-      let base64Image = '';
-      try {
-        const imageBuffer = fs.readFileSync(doc.filePath);
-        base64Image = imageBuffer.toString('base64');
-      } catch {
-        res.status(400).json({ error: 'Impossible de lire le fichier' });
-        return;
-      }
+    await prisma.document.update({ where: { id: doc.id }, data: { status: 'PROCESSING' } });
 
-      const extracted = await extractDocument(base64Image);
+    let text = '';
+    let imageBase64: string | undefined;
 
-      if (!extracted) {
-        await prisma.document.update({ where: { id: doc.id }, data: { status: 'FAILED' } });
-        res.status(500).json({ error: 'Échec de l\'extraction par l\'IA' });
-        return;
-      }
+    try {
+      const fileBuffer = fs.readFileSync(doc.filePath);
+      imageBase64 = fileBuffer.toString('base64');
+      text = `Document: ${doc.fileName}, Size: ${fileBuffer.length} bytes`;
+    } catch {
+      await prisma.document.update({ where: { id: doc.id }, data: { status: 'FAILED' } });
+      res.status(400).json({ error: 'Impossible de lire le fichier' });
+      return;
+    }
 
-      const transaction = await prisma.transaction.create({
-        data: {
-          projectId: doc.projectId,
-          documentId: doc.id,
-          documentType: mapDocumentType(extracted.documentType),
-          vendorName: extracted.vendorName || null,
-          documentNumber: extracted.documentNumber || null,
-          date: extracted.date ? new Date(extracted.date) : null,
-          dueDate: extracted.dueDate ? new Date(extracted.dueDate) : null,
-          totalAmount: extracted.totalAmount || 0,
-          currency: extracted.currency || 'MAD',
-          taxAmount: extracted.taxAmount || 0,
-          taxRate: extracted.taxRate || null,
-          description: extracted.notes || extracted.vendorName || null,
-          category: extracted.category || null,
-        },
+    try {
+      const result = await extractDocument(text, doc.category, imageBase64);
+      await createExtractionRecord(doc.id, result);
+      await prisma.project.update({
+        where: { id: doc.projectId },
+        data: { dossierStatus: 'AI_ANALYSIS' },
       });
+      await notifyExtractionComplete(doc.projectId, 1, req.user!.userId);
+      await createAuditLog(req.user!.userId, doc.projectId, 'DOCUMENT_EXTRACTED',
+        { documentId: doc.id, fileName: doc.fileName, confidence: result.confidence });
 
-      await prisma.document.update({ where: { id: doc.id }, data: { status: 'EXTRACTED' } });
-      await notifyExtractionComplete(doc.projectId, 1);
-
-      res.json({ transaction, extracted });
-    } else {
-      res.status(400).json({ error: 'Seuls les images et PDFs peuvent être traités' });
+      res.json({
+        documentId: doc.id,
+        status: 'AWAITING_REVIEW',
+        confidence: result.confidence,
+        fields: result.fields.length,
+      });
+    } catch (err: any) {
+      await prisma.document.update({ where: { id: doc.id }, data: { status: 'FAILED' } });
+      res.status(500).json({ error: `Échec de l'extraction: ${err.message}` });
     }
   } catch (err) {
     console.error('Process document error:', err);
@@ -172,33 +194,15 @@ router.post('/projects/:projectId/documents/process-batch', async (req: Request,
       if (doc.fileType === 'image' || doc.fileType === 'pdf') {
         await prisma.document.update({ where: { id: doc.id }, data: { status: 'PROCESSING' } });
         try {
-          const imageBuffer = fs.readFileSync(doc.filePath);
-          const base64Image = imageBuffer.toString('base64');
-          const extracted = await extractDocument(base64Image);
-          if (extracted) {
-            await prisma.transaction.create({
-              data: {
-                projectId: doc.projectId,
-                documentId: doc.id,
-                documentType: mapDocumentType(extracted.documentType),
-                vendorName: extracted.vendorName || null,
-                documentNumber: extracted.documentNumber || null,
-                date: extracted.date ? new Date(extracted.date) : null,
-                dueDate: extracted.dueDate ? new Date(extracted.dueDate) : null,
-                totalAmount: extracted.totalAmount || 0,
-                currency: extracted.currency || 'MAD',
-                taxAmount: extracted.taxAmount || 0,
-                taxRate: extracted.taxRate || null,
-                description: extracted.notes || extracted.vendorName || null,
-                category: extracted.category || null,
-              },
-            });
-            await prisma.document.update({ where: { id: doc.id }, data: { status: 'EXTRACTED' } });
-            processed++;
-          } else {
-            await prisma.document.update({ where: { id: doc.id }, data: { status: 'FAILED' } });
-            failed++;
-          }
+          const fileBuffer = fs.readFileSync(doc.filePath);
+          const imageBase64 = fileBuffer.toString('base64');
+          const result = await extractDocument(
+            `Document: ${doc.fileName}`,
+            doc.category,
+            imageBase64,
+          );
+          await createExtractionRecord(doc.id, result);
+          processed++;
         } catch {
           await prisma.document.update({ where: { id: doc.id }, data: { status: 'FAILED' } });
           failed++;
@@ -206,7 +210,9 @@ router.post('/projects/:projectId/documents/process-batch', async (req: Request,
       }
     }
 
-    await notifyExtractionComplete(req.params.projectId, processed);
+    await notifyExtractionComplete(req.params.projectId, processed, req.user!.userId);
+    await createAuditLog(req.user!.userId, req.params.projectId, 'BATCH_EXTRACTION',
+      { processed, failed, total: pendingDocs.length });
 
     res.json({ processed, failed, total: pendingDocs.length });
   } catch (err) {
@@ -265,13 +271,5 @@ router.post('/projects/:projectId/documents/import-csv', upload.single('file'), 
     res.status(500).json({ error: 'Erreur lors de l\'import CSV' });
   }
 });
-
-function mapDocumentType(type: string): 'INVOICE' | 'RECEIPT' | 'BANK_STATEMENT' {
-  const t = (type || '').toLowerCase();
-  if (t.includes('invoice') || t === 'facture') return 'INVOICE';
-  if (t.includes('receipt') || t === 'recu' || t === 'reçu') return 'RECEIPT';
-  if (t.includes('bank') || t === 'relevé') return 'BANK_STATEMENT';
-  return 'INVOICE';
-}
 
 export default router;

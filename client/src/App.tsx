@@ -21,6 +21,10 @@ import ExportFiscalPage from './pages/ExportFiscalPage';
 import AuditTrailPage from './pages/AuditTrailPage';
 import SettingsPage from './pages/SettingsPage';
 import AboutPage from './pages/AboutPage';
+import ClientDashboard from './pages/ClientDashboard';
+import OwnerDashboard from './pages/OwnerDashboard';
+import ClientProjectDetail from './pages/ClientProjectDetail';
+import DocumentReviewPage from './pages/DocumentReviewPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -29,7 +33,25 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function OwnerRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div className="gold-spinner" /></div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'OWNER') return <Navigate to="/client" replace />;
+  return <>{children}</>;
+}
+
+function ClientRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div className="gold-spinner" /></div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'CLIENT') return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 export default function App() {
+  const { user } = useAuth();
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -41,7 +63,22 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<DashboardPage />} />
+        {user?.role === 'OWNER' ? (
+          <>
+            <Route index element={<OwnerDashboard />} />
+            <Route path="owner" element={<OwnerDashboard />} />
+            <Route path="owner/clients" element={<div className="page-content"><p>Liste des clients</p></div>} />
+            <Route path="owner/projects" element={<div className="page-content"><p>Tous les dossiers</p></div>} />
+            <Route path="owner/signatures" element={<div className="page-content"><p>Registre des signatures</p></div>} />
+          </>
+        ) : (
+          <>
+            <Route index element={<ClientDashboard />} />
+            <Route path="client" element={<ClientDashboard />} />
+            <Route path="client/projects/:id" element={<ClientProjectDetail />} />
+          </>
+        )}
+        <Route path="review/:id" element={<DocumentReviewPage />} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="projects/:id" element={<ProjectDetailPage />} />
         <Route path="projects/:id/documents" element={<DocumentsPage />} />

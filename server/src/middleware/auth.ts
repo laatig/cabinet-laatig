@@ -5,6 +5,7 @@ import config from '../config';
 export interface AuthPayload {
   userId: string;
   email: string;
+  role: string;
 }
 
 declare global {
@@ -43,6 +44,14 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     }
     res.status(401).json({ error: 'Token invalide' });
   }
+}
+
+export function ownerMiddleware(req: Request, res: Response, next: NextFunction): void {
+  if (!req.user || req.user.role !== 'OWNER') {
+    res.status(403).json({ error: 'Accès réservé au propriétaire du cabinet' });
+    return;
+  }
+  next();
 }
 
 export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {

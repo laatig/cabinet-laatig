@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { prisma } from '../config/database';
 import config from '../config';
 import { authMiddleware } from '../middleware/auth';
+import { sendEmail } from '../services/email';
 
 const router = Router();
 
@@ -16,12 +18,19 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const userSelect = {
+  id: true, email: true, fullName: true, role: true,
+  firmName: true, title: true, phoneNumber: true, emailVerified: true,
+  raisonSociale: true, clientICE: true, clientRC: true, formeJuridique: true,
+  createdAt: true,
+};
+
 router.post('/register', authLimiter, async (req: Request, res: Response) => {
   try {
-    const { email, password, fullName, firmName, title, phoneNumber } = req.body;
+    const { email, password, fullName, raisonSociale, clientICE, clientRC, formeJuridique, phoneNumber } = req.body;
 
-    if (!email || !password || !fullName || !firmName) {
-      res.status(400).json({ error: 'Champs obligatoires: email, password, fullName, firmName' });
+    if (!email || !password || !fullName) {
+      res.status(400).json({ error: 'Champs obligatoires: email, password, fullName' });
       return;
     }
 
@@ -32,13 +41,22 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const verificationToken = crypto.randomBytes(32).toString('hex');
 
     const user = await prisma.user.create({
-      data: { email, passwordHash, fullName, firmName, title, phoneNumber },
-      select: { id: true, email: true, fullName: true, firmName: true, title: true, phoneNumber: true, createdAt: true },
+      data: {
+        email, passwordHash, fullName, role: 'CLIENT',
+        raisonSociale, clientICE, clientRC, formeJuridique, phoneNumber,
+        verificationToken,
+      },
+      select: userSelect,
     });
 
-    const token = jwt.sign({ userId: user.id, email: user.email }, config.jwtSecret, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      config.jwtSecret,
+      { expiresIn: '7d' }
+    );
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -47,10 +65,22 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    if (config.smtpHost) {
+      const verifyUrl = `${config.appUrl}/verify-email?token=${verificationToken}`;
+      sendEmail({
+        to: email,
+        subject: 'Confirmez votre inscription - Cabinet Laatig',
+        html: `<p>Bonjour ${fullName},</p>
+<p>Merci de vous être inscrit sur Cabinet Laatig.</p>
+<p><a href="${verifyUrl}">Confirmer mon adresse email</a></p>
+<p>Code de vérification : ${verificationToken}</p>`
+      }).catch(() => {});
+    }
+
     res.status(201).json({ user, token });
   } catch (err) {
     console.error('Register error:', err);
-    res.status(500).json({ error: 'Erreur lors de l\'inscription' });
+    res.status(500).json({ error: "Erreur lors de l'inscription" });
   }
 });
 
@@ -75,7 +105,11 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
       return;
     }
 
-    const token = jwt.sign({ userId: user.id, email: user.email }, config.jwtSecret, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      config.jwtSecret,
+      { expiresIn: '7d' }
+    );
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -84,17 +118,8 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        firmName: user.firmName,
-        title: user.title,
-        phoneNumber: user.phoneNumber,
-      },
-      token,
-    });
+    const { passwordHash, verificationToken, resetToken, resetTokenExpiry, ...safeUser } = user;
+    res.json({ user: safeUser, token });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Erreur lors de la connexion' });
@@ -110,7 +135,7 @@ router.get('/me', authMiddleware, async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.userId },
-      select: { id: true, email: true, fullName: true, firmName: true, title: true, phoneNumber: true, createdAt: true },
+      select: userSelect,
     });
     if (!user) {
       res.status(404).json({ error: 'Utilisateur introuvable' });
@@ -119,6 +144,86 @@ router.get('/me', authMiddleware, async (req: Request, res: Response) => {
     res.json({ user });
   } catch (err) {
     console.error('Me error:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+router.post('/verify-email', async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      res.status(400).json({ error: 'Token requis' });
+      return;
+    }
+    const user = await prisma.user.findFirst({ where: { verificationToken: token } });
+    if (!user) {
+      res.status(400).json({ error: 'Token invalide' });
+      return;
+    }
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true, verificationToken: null },
+    });
+    res.json({ message: 'Email vérifié avec succès' });
+  } catch (err) {
+    console.error('Verify email error:', err);
+    res.status(500).json({ error: 'Erreur de vérification' });
+  }
+});
+
+router.post('/forgot-password', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+      return;
+    }
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 3600000);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { resetToken, resetTokenExpiry },
+    });
+    if (config.smtpHost) {
+      const resetUrl = `${config.appUrl}/reset-password?token=${resetToken}`;
+      sendEmail({
+        to: email,
+        subject: 'Réinitialisation de mot de passe - Cabinet Laatig',
+        html: `<p>Cliquez sur ce lien pour réinitialiser votre mot de passe :</p>
+<p><a href="${resetUrl}">${resetUrl}</a></p>
+<p>Ce lien expire dans 1 heure.</p>`
+      }).catch(() => {});
+    }
+    res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+router.post('/reset-password', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      res.status(400).json({ error: 'Token et mot de passe requis' });
+      return;
+    }
+    const user = await prisma.user.findFirst({
+      where: { resetToken: token, resetTokenExpiry: { gte: new Date() } },
+    });
+    if (!user) {
+      res.status(400).json({ error: 'Token invalide ou expiré' });
+      return;
+    }
+    const passwordHash = await bcrypt.hash(password, 12);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash, resetToken: null, resetTokenExpiry: null },
+    });
+    res.json({ message: 'Mot de passe réinitialisé avec succès' });
+  } catch (err) {
+    console.error('Reset password error:', err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });

@@ -130,6 +130,8 @@ async function main() {
       email: 'mustapha@cabinetlaatig.ma',
       passwordHash,
       fullName: 'Mustapha Atiq',
+      role: 'OWNER',
+      emailVerified: true,
       title: 'Expert-Comptable',
       firmName: 'Cabinet Laatig',
       phoneNumber: '+212 6 62 22 89 63',

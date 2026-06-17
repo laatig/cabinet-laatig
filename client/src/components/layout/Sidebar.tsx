@@ -52,9 +52,16 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
     badge?: boolean;
   }
 
-  const navItems: { section: string; items: NavItemDef[] }[] = [
+  const isOwner = user?.role === 'OWNER';
+
+  const navItems: { section: string; items: NavItemDef[] }[] = isOwner ? [
     { section: 'nav.main', items: [
-      { path: '/', label: 'nav.dashboard', icon: LayoutDashboard, exact: true },
+      { path: '/owner', label: 'Tableau de bord', icon: LayoutDashboard, exact: true },
+      { path: '/owner/clients', label: 'Clients', icon: FolderOpen },
+      { path: '/owner/projects', label: 'Dossiers', icon: FileText },
+      { path: '/owner/signatures', label: 'Signatures', icon: FileCheck },
+    ]},
+    { section: 'ÉTATS FINANCIERS', items: [
       { path: '/projects', label: 'nav.projects', icon: FolderOpen },
     ]},
     { section: 'nav.statements', items: [
@@ -74,6 +81,11 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
       { path: '/audit-trail', label: 'nav.audit-trail', icon: History },
       { path: '/settings', label: 'nav.settings', icon: Settings },
       { path: '/about', label: 'nav.about', icon: Info },
+    ]},
+  ] : [
+    { section: 'MON ESPACE', items: [
+      { path: '/client', label: 'Mes dossiers', icon: LayoutDashboard, exact: true },
+      { path: '/settings', label: 'Mon profil', icon: Settings },
     ]},
   ];
 
@@ -135,11 +147,11 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
       </nav>
 
       <div className="sidebar-footer">
-        <div className="user-avatar">{user ? getInitials(user.name) : 'MA'}</div>
+        <div className="user-avatar">{user ? getInitials(user.fullName) : 'MA'}</div>
         {!collapsed && (
           <div className="user-info">
-            <div className="user-name">{user?.name || 'Mustapha Atiq'}</div>
-            <div className="user-title">Expert-Comptable</div>
+            <div className="user-name">{user?.fullName || 'Mustapha Atiq'}</div>
+            <div className="user-title">{user?.role === 'OWNER' ? 'Expert-Comptable' : 'Client'}</div>
           </div>
         )}
         {!collapsed && (

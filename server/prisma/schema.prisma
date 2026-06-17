@@ -7,24 +7,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  CLIENT
+  OWNER
+}
+
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  passwordHash String
-  fullName     String
-  title        String?
-  firmName     String
-  phoneNumber  String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  projects     Project[]
-  auditLogs    AuditLog[]
+  id                String           @id @default(cuid())
+  email             String           @unique
+  passwordHash      String
+  fullName          String
+  role              UserRole         @default(CLIENT)
+  title             String?
+  firmName          String?
+  phoneNumber       String?
+  emailVerified     Boolean          @default(false)
+  verificationToken String?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  // Company info for client self-registration
+  raisonSociale     String?
+  clientICE         String?
+  clientRC          String?
+  formeJuridique    String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  projects          Project[]
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  signatures        Signature[]
+}
+
+model ClientCompany {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  raisonSociale   String
+  clientICE       String    @unique
+  clientRC        String?
+  formeJuridique  String?
+  adresse         String?
+  ville           String?
+  telephone       String?
+  email           String?
+  fiscalYearEnd   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  projects        Project[]
 }
 
 model Project {
   id              String         @id @default(cuid())
   userId          String
   user            User           @relation(fields: [userId], references: [id])
+  companyId       String?
+  company         ClientCompany? @relation(fields: [companyId], references: [id])
   clientName      String
   clientAddress   String?
   clientICE       String?
@@ -54,28 +91,49 @@ enum ProjectStatus {
 
 enum DossierStatus {
   DOCUMENTS_RECEIVED
+  EXTRACTION_IN_PROGRESS
   AI_ANALYSIS
   IN_REVIEW
+  AWAITING_CLIENT_CORRECTION
   VALIDATED
+  SIGNED
+}
+
+enum FinancialDocumentCategory {
+  BILAN
+  CPC
+  BALANCE
+  ESG
+  TABLEAU_FINANCEMENT
+  ETIC
+  PIECE_JUSTIFICATIVE
 }
 
 model Document {
-  id           String         @id @default(cuid())
-  projectId    String
-  project      Project        @relation(fields: [projectId], references: [id])
-  fileName     String
-  fileType     String
-  filePath     String
-  pageCount    Int            @default(0)
-  status       DocumentStatus @default(UPLOADED)
-  createdAt    DateTime       @default(now())
-  transactions Transaction[]
+  id                String                    @id @default(cuid())
+  projectId         String
+  project           Project                   @relation(fields: [projectId], references: [id])
+  fileName          String
+  fileType          String
+  filePath          String
+  pageCount         Int                       @default(0)
+  category          FinancialDocumentCategory @default(PIECE_JUSTIFICATIVE)
+  fiscalYear        Int?
+  version           Int                       @default(1)
+  originalDocId     String?
+  status            DocumentStatus            @default(UPLOADED)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  transactions      Transaction[]
+  extractions       Extraction[]
 }
 
 enum DocumentStatus {
   UPLOADED
   PROCESSING
   EXTRACTED
+  AWAITING_REVIEW
+  REVIEWED
   FAILED
 }
 
@@ -207,10 +265,63 @@ enum ReportType {
   CAHIER_TRAVAIL
 }
 
+model Extraction {
+  id             String             @id @default(cuid())
+  documentId     String
+  document       Document           @relation(fields: [documentId], references: [id])
+  status         ExtractionStatus   @default(PENDING)
+  confidence     Decimal            @db.Decimal(5, 2)
+  modelUsed      String
+  processedAt    DateTime           @default(now())
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  reviewerNotes  String?
+  fields         ExtractionField[]
+}
+
+enum ExtractionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REVIEWED
+}
+
+model ExtractionField {
+  id              String     @id @default(cuid())
+  extractionId    String
+  extraction      Extraction @relation(fields: [extractionId], references: [id])
+  fieldName       String
+  fieldValue      String
+  fieldType       String     @default("text")
+  confidence      Decimal    @db.Decimal(5, 2)
+  originalValue   String?
+  correctedValue  String?
+  isCorrected     Boolean    @default(false)
+  section         String?
+  createdAt       DateTime   @default(now())
+}
+
+model Signature {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id])
+  signatureData   String
+  signatureType   String   @default("drawn")
+  fullName        String
+  title           String
+  ipAddress       String?
+  signedAt        DateTime @default(now())
+}
+
 model Notification {
   id        String           @id @default(cuid())
   projectId String
   project   Project          @relation(fields: [projectId], references: [id])
+  userId    String?
+  user      User?            @relation(fields: [userId], references: [id])
   type      NotificationType
   message   String
   isRead    Boolean          @default(false)
@@ -223,6 +334,9 @@ enum NotificationType {
   REPORT_READY
   REVIEW_COMPLETE
   EXTRACTION_COMPLETE
+  DOCUMENT_UPLOADED
+  SIGNATURE_REQUEST
+  DOCUMENT_REJECTED
 }
 
 model AuditLog {

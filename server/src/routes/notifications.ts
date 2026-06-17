@@ -8,21 +8,19 @@ router.use(authMiddleware);
 
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const projects = await prisma.project.findMany({
-      where: { userId: req.user!.userId },
-      select: { id: true },
-    });
-    const projectIds = projects.map(p => p.id);
-
     const notifications = await prisma.notification.findMany({
-      where: { projectId: { in: projectIds } },
+      where: {
+        OR: [
+          { userId: req.user!.userId },
+          { project: { userId: req.user!.userId } },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
       take: 50,
       include: { project: { select: { clientName: true } } },
     });
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
-
     res.json({ notifications, unreadCount });
   } catch (err) {
     console.error('List notifications error:', err);
@@ -32,17 +30,15 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.post('/mark-read', async (req: Request, res: Response) => {
   try {
-    const projects = await prisma.project.findMany({
-      where: { userId: req.user!.userId },
-      select: { id: true },
-    });
-    const projectIds = projects.map(p => p.id);
-
     await prisma.notification.updateMany({
-      where: { projectId: { in: projectIds }, isRead: false },
+      where: {
+        OR: [
+          { userId: req.user!.userId, isRead: false },
+          { project: { userId: req.user!.userId }, isRead: false },
+        ],
+      },
       data: { isRead: true },
     });
-
     res.json({ message: 'Notifications marquées comme lues' });
   } catch (err) {
     console.error('Mark read error:', err);
@@ -56,7 +52,11 @@ router.post('/:id/mark-read', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       include: { project: { select: { userId: true } } },
     });
-    if (!notification || notification.project.userId !== req.user!.userId) {
+    if (!notification) {
+      res.status(404).json({ error: 'Notification introuvable' });
+      return;
+    }
+    if (notification.project.userId !== req.user!.userId && notification.userId !== req.user!.userId) {
       res.status(404).json({ error: 'Notification introuvable' });
       return;
     }

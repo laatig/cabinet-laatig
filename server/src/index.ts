@@ -14,6 +14,8 @@ import reportRoutes from './routes/reports';
 import auditLogRoutes from './routes/auditLog';
 import pcmRoutes from './routes/pcm';
 import demoRoutes from './routes/demo';
+import ownerRoutes from './routes/owner';
+import clientRoutes from './routes/client';
 
 const app = express();
 
@@ -51,14 +53,8 @@ app.use('/api', reportRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/pcm-accounts', pcmRoutes);
 app.use('/api/demo', demoRoutes);
-
-if (!config.isDev) {
-  const clientDist = path.resolve(__dirname, '../../client/dist');
-  app.use(express.static(clientDist));
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(clientDist, 'index.html'));
-  });
-}
+app.use('/api/owner', ownerRoutes);
+app.use('/api/client', clientRoutes);
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Unhandled error:', err);
@@ -72,6 +68,14 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   }
   res.status(500).json({ error: 'Erreur interne du serveur' });
 });
+
+if (!config.isDev) {
+  const clientDist = path.resolve(__dirname, '../../client/dist');
+  app.use(express.static(clientDist));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+}
 
 app.listen(config.port, () => {
   console.log(`Cabinet Laatig API running on port ${config.port}`);
