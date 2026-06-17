@@ -36,6 +36,7 @@ model User {
   auditLogs         AuditLog[]
   notifications     Notification[]
   signatures        Signature[]
+  clientCompany     ClientCompany?
 }
 
 model ClientCompany {
@@ -81,6 +82,7 @@ model Project {
   reports         Report[]
   notifications   Notification[]
   auditLogs       AuditLog[]
+  signatures      Signature[]
 }
 
 enum ProjectStatus {
