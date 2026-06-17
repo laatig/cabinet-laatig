@@ -11,6 +11,8 @@ export const config = {
   groqBaseUrl: process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1/chat/completions',
   claudeApiKey: process.env.CLAUDE_API_KEY || '',
   claudeBaseUrl: process.env.CLAUDE_BASE_URL || 'https://api.anthropic.com/v1',
+  openrouterApiKey: process.env.OPENROUTER_API_KEY || '',
+  openrouterBaseUrl: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1/chat/completions',
   uploadDir: process.env.UPLOAD_DIR || './uploads',
   nodeEnv: process.env.NODE_ENV || 'development',
   isDev: (process.env.NODE_ENV || 'development') === 'development',

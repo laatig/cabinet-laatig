@@ -85,7 +85,7 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
   ] : [
     { section: 'MON ESPACE', items: [
       { path: '/client', label: 'Mes dossiers', icon: LayoutDashboard, exact: true },
-      { path: '/settings', label: 'Mon profil', icon: Settings },
+      { path: '/profile', label: 'Mon profil', icon: Settings },
     ]},
   ];
 

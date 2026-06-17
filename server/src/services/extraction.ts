@@ -38,6 +38,31 @@ async function callClaude(prompt: string, systemPrompt: string): Promise<string>
   return data.content?.[0]?.text || '';
 }
 
+async function callOpenRouter(prompt: string, systemPrompt: string): Promise<string> {
+  const response = await fetch(config.openrouterBaseUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.openrouterApiKey}`,
+      'HTTP-Referer': config.appUrl,
+    },
+    body: JSON.stringify({
+      model: 'openai/gpt-4o',
+      max_tokens: 4096,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt },
+      ],
+    }),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`OpenRouter API error: ${response.status} ${err}`);
+  }
+  const data: any = await response.json();
+  return data.choices?.[0]?.message?.content || '';
+}
+
 async function callGroq(prompt: string, imageBase64?: string): Promise<string> {
   const messages: any[] = [];
   if (imageBase64) {
@@ -175,10 +200,12 @@ export async function extractDocument(
 
   if (config.claudeApiKey) {
     rawResponse = await callClaude(prompt, SYSTEM_PROMPT);
+  } else if (config.openrouterApiKey) {
+    rawResponse = await callOpenRouter(prompt, SYSTEM_PROMPT);
   } else if (config.groqApiKey) {
     rawResponse = await callGroq(prompt, imageBase64);
   } else {
-    throw new Error('Aucune clé API IA configurée (Claude ou Groq)');
+    throw new Error('Aucune clé API IA configurée (Claude, OpenRouter ou Groq)');
   }
 
   const cleaned = cleanJsonResponse(rawResponse);
@@ -237,7 +264,7 @@ export async function createExtractionRecord(
       documentId,
       status: 'COMPLETED',
       confidence: result.confidence,
-      modelUsed: config.claudeApiKey ? 'claude-sonnet-4' : 'llama-3.2-90b-vision-preview',
+      modelUsed: config.claudeApiKey ? 'claude-sonnet-4' : config.openrouterApiKey ? 'gpt-4o' : 'llama-3.2-90b-vision-preview',
       fields: {
         create: result.fields.map(f => ({
           fieldName: f.fieldName,

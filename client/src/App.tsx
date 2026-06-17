@@ -20,6 +20,7 @@ import CahierTravailPage from './pages/CahierTravailPage';
 import ExportFiscalPage from './pages/ExportFiscalPage';
 import AuditTrailPage from './pages/AuditTrailPage';
 import SettingsPage from './pages/SettingsPage';
+import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
 import ClientDashboard from './pages/ClientDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
@@ -96,6 +97,7 @@ export default function App() {
         <Route path="projects/:id/export" element={<ExportFiscalPage />} />
         <Route path="audit-trail" element={<AuditTrailPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="about" element={<AboutPage />} />
       </Route>
     </Routes>
