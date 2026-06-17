@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../lib/translations';
 import { formatDate, formatNumber } from '../lib/utils';
 import api from '../lib/api';
+import { Download } from 'lucide-react';
 import type { GrandLivreEntry } from '../types';
 
 export default function GrandLivrePage() {
@@ -28,8 +29,15 @@ export default function GrandLivrePage() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">{t('grandlivre.title', lang)}</div>
-        <div className="page-gold-rule" />
+        <div className="page-header-row">
+          <div>
+            <div className="page-title">{t('grandlivre.title', lang)}</div>
+            <div className="page-gold-rule" />
+          </div>
+          <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/grand-livre`, '_blank')}>
+            <Download size={16} /> {t('common.download', lang)} (Excel)
+          </button>
+        </div>
       </div>
 
       <div className="panel">

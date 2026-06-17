@@ -74,8 +74,8 @@ export default function SigPage() {
               <div className="page-gold-rule" />
             </div>
           </div>
-          <button className="btn btn-outline">
-            <Download size={16} /> Télécharger
+          <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/sig`, '_blank')}>
+            <Download size={16} /> Télécharger (Excel)
           </button>
         </div>
       </div>

@@ -58,8 +58,8 @@ export default function LiasseFiscalePage() {
             <button className="btn btn-outline">
               <Printer size={16} /> Imprimer
             </button>
-            <button className="btn btn-primary">
-              <Download size={16} /> Télécharger (PDF)
+            <button className="btn btn-primary" onClick={() => window.open(`/api/projects/${id}/export/liasse-fiscale`, '_blank')}>
+              <Download size={16} /> Télécharger (Excel)
             </button>
           </div>
         </div>

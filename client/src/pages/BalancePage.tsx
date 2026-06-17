@@ -4,7 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../lib/translations';
 import { formatNumber } from '../lib/utils';
 import api from '../lib/api';
-import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Download } from 'lucide-react';
 import type { BalanceEntry } from '../types';
 
 export default function BalancePage() {
@@ -46,8 +46,15 @@ export default function BalancePage() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">{t('balance.title', lang)}</div>
-        <div className="page-gold-rule" />
+        <div className="page-header-row">
+          <div>
+            <div className="page-title">{t('balance.title', lang)}</div>
+            <div className="page-gold-rule" />
+          </div>
+          <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/balance`, '_blank')}>
+            <Download size={16} /> {t('common.download', lang)} (Excel)
+          </button>
+        </div>
       </div>
 
       <div className="panel">

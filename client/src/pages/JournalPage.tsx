@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../lib/translations';
 import { formatDate, formatNumber } from '../lib/utils';
 import api from '../lib/api';
+import { Download } from 'lucide-react';
 import type { JournalEntry } from '../types';
 
 export default function JournalPage() {
@@ -32,8 +33,15 @@ export default function JournalPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">{t('journal.title', lang)}</div>
-        <div className="page-gold-rule" />
+        <div className="page-header-row">
+          <div>
+            <div className="page-title">{t('journal.title', lang)}</div>
+            <div className="page-gold-rule" />
+          </div>
+          <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/journal`, '_blank')}>
+            <Download size={16} /> {t('common.download', lang)} (Excel)
+          </button>
+        </div>
       </div>
 
       <div className="panel">

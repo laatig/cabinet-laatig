@@ -79,10 +79,9 @@ export default function TvaPage() {
             <div className="page-title">{t('tva.title', lang)}</div>
             <div className="page-gold-rule" />
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-outline btn-sm"><Download size={14} /> {t('tva.downloadPdf', lang)}</button>
-            <button className="btn btn-outline btn-sm"><Download size={14} /> {t('tva.downloadCsv', lang)}</button>
-          </div>
+          <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/tva?period=${period}&year=${year}`, '_blank')}>
+            <Download size={16} /> {t('common.download', lang)} (Excel)
+          </button>
         </div>
       </div>
 

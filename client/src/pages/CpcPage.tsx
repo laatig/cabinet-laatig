@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../lib/translations';
 import { formatNumber } from '../lib/utils';
 import api from '../lib/api';
+import { Download } from 'lucide-react';
 import type { CpcEntry } from '../types';
 
 export default function CpcPage() {
@@ -47,8 +48,15 @@ export default function CpcPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">{t('cpc.title', lang)}</div>
-        <div className="page-gold-rule" />
+        <div className="page-header-row">
+          <div>
+            <div className="page-title">{t('cpc.title', lang)}</div>
+            <div className="page-gold-rule" />
+          </div>
+          <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/cpc`, '_blank')}>
+            <Download size={16} /> {t('common.download', lang)} (Excel)
+          </button>
+        </div>
       </div>
 
       {loading ? (

@@ -51,8 +51,8 @@ export default function BilanPage() {
             <div className="page-title">{t('bilan.title', lang)}</div>
             <div className="page-gold-rule" />
           </div>
-          <button className="btn btn-outline">
-            <Download size={16} /> {t('common.download', lang)}
+          <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/bilan`, '_blank')}>
+            <Download size={16} /> {t('common.download', lang)} (Excel)
           </button>
         </div>
       </div>
