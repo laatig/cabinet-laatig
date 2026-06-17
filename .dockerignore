@@ -1,0 +1,8 @@
+node_modules
+.git
+*.md
+.gitkeep
+.env
+.env.*
+client/dist
+**/*.tsbuildinfo
