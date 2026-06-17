@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import DocumentsPage from './pages/DocumentsPage';
@@ -24,6 +23,7 @@ import AuditTrailPage from './pages/AuditTrailPage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
+import NotificationsPage from './pages/NotificationsPage';
 import ClientDashboard from './pages/ClientDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
 import ClientProjectDetail from './pages/ClientProjectDetail';
@@ -99,6 +99,7 @@ export default function App() {
         <Route path="projects/:id/export" element={<ExportFiscalPage />} />
         <Route path="projects/:id/sig" element={<SigPage />} />
         <Route path="projects/:id/liasse-fiscale" element={<LiasseFiscalePage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
         <Route path="audit-trail" element={<AuditTrailPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="profile" element={<ProfilePage />} />

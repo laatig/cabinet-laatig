@@ -126,8 +126,24 @@ import config from '../config';
 
 router.get('/reports/download/:filename', async (req: Request, res: Response) => {
   try {
-    const reportsDir = path.join(config.uploadDir, 'reports');
-    const filePath = path.join(reportsDir, req.params.filename);
+    const reportsDir = path.resolve(config.uploadDir, 'reports');
+    const filePath = path.resolve(reportsDir, req.params.filename);
+
+    if (!filePath.startsWith(reportsDir)) {
+      res.status(403).json({ error: 'Accès refusé' });
+      return;
+    }
+
+    const report = await prisma.report.findFirst({ where: { filePath } });
+    if (report) {
+      const project = await prisma.project.findFirst({
+        where: { id: report.projectId, userId: req.user!.userId },
+      });
+      if (!project) {
+        res.status(403).json({ error: 'Accès refusé' });
+        return;
+      }
+    }
 
     if (!fs.existsSync(filePath)) {
       res.status(404).json({ error: 'Fichier introuvable' });

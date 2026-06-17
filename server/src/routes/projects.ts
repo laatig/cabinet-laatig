@@ -70,7 +70,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const { clientName, clientAddress, clientICE, clientRC, clientTP, fiscalYearStart, fiscalYearEnd, auditType, status } = req.body;
+    const { clientName, clientAddress, clientICE, clientRC, clientTP, fiscalYearStart, fiscalYearEnd, auditType } = req.body;
     const existing = await prisma.project.findFirst({
       where: { id: req.params.id, userId: req.user!.userId },
     });
@@ -89,7 +89,6 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...(fiscalYearStart && { fiscalYearStart: new Date(fiscalYearStart) }),
         ...(fiscalYearEnd && { fiscalYearEnd: new Date(fiscalYearEnd) }),
         ...(auditType && { auditType }),
-        ...(status && { status }),
       },
     });
     res.json({ project });

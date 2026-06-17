@@ -19,6 +19,7 @@ export default function ClientDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -27,7 +28,7 @@ export default function ClientDashboard() {
     ]).then(([pRes, nRes]) => {
       setProjects(pRes.data.projects);
       setNotifications(nRes.data.notifications);
-    }).catch(console.error).finally(() => setLoading(false));
+    }).catch(() => setError('Erreur chargement dashboard')).finally(() => setLoading(false));
   }, []);
 
   if (loading) {

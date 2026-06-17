@@ -8,11 +8,12 @@ export default function DocumentReviewPage() {
   const navigate = useNavigate();
   const [doc, setDoc] = useState<Document | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get(`/documents/${id}`)
       .then(res => setDoc(res.data.document))
-      .catch(console.error)
+      .catch(() => setError('Erreur chargement document'))
       .finally(() => setLoading(false));
   }, [id]);
 

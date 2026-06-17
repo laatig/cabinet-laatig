@@ -7,6 +7,7 @@ export default function OwnerDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [queue, setQueue] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -15,7 +16,7 @@ export default function OwnerDashboard() {
     ]).then(([sRes, qRes]) => {
       setStats(sRes.data);
       setQueue(qRes.data.documents);
-    }).catch(console.error).finally(() => setLoading(false));
+    }).catch(() => setError('Erreur chargement dashboard')).finally(() => setLoading(false));
   }, []);
 
   const handleApprove = async (id: string) => {

@@ -126,6 +126,11 @@ router.post('/documents/:id/process', async (req: Request, res: Response) => {
       return;
     }
 
+    if (doc.project.userId !== req.user!.userId) {
+      res.status(403).json({ error: 'Accès refusé' });
+      return;
+    }
+
     if (doc.fileType !== 'image' && doc.fileType !== 'pdf') {
       res.status(400).json({ error: 'Seuls les images et PDFs peuvent être traités par l\'IA' });
       return;

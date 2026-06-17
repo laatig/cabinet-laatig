@@ -19,6 +19,7 @@ export default function ProfilePage() {
     clientICE: '', clientRC: '', formeJuridique: '',
   });
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -33,7 +34,7 @@ export default function ProfilePage() {
         clientRC: u.clientRC || '',
         formeJuridique: u.formeJuridique || '',
       });
-    }).catch(console.error).finally(() => setLoading(false));
+    }).catch(() => setError('Erreur chargement profil')).finally(() => setLoading(false));
   }, []);
 
   const handleSave = async () => {

@@ -30,12 +30,13 @@ export default function ClientProjectDetail() {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
   const [category, setCategory] = useState('PIECE_JUSTIFICATIVE');
 
   useEffect(() => {
     api.get(`/client/projects/${id}`)
       .then(res => setProject(res.data.project))
-      .catch(console.error)
+      .catch(() => setError('Erreur chargement projet'))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -56,8 +57,8 @@ export default function ClientProjectDetail() {
         ...prev,
         documents: [...(res.data.documents as Document[]).reverse(), ...prev.documents],
       } : prev);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      setError('Erreur lors du téléversement');
     } finally {
       setUploading(false);
     }
