@@ -181,7 +181,7 @@ router.post('/documents/:id/reject', async (req: Request, res: Response) => {
 <p>Le document "${doc.fileName}" nécessite des corrections :</p>
 <p><em>${comment}</em></p>
 <p><a href="${config.appUrl}">Connectez-vous à votre espace</a> pour soumettre une version corrigée.</p>`
-      }).catch(() => {});
+      }).catch((err: Error) => console.error('[Email] Failed send reject:', err.message));
     }
 
     await createAuditLog(req.user!.userId, doc.projectId, 'DOCUMENT_REJECTED',
@@ -274,7 +274,7 @@ router.post('/projects/:id/sign', async (req: Request, res: Response) => {
         html: `<p>Bonjour ${clientUser.fullName},</p>
 <p>Le dossier "${project.clientName}" pour l'exercice ${project.fiscalYearStart.getFullYear()} a été signé et clôturé.</p>
 <p>Les rapports sont disponibles dans votre espace Cabinet Laatig.</p>`
-      }).catch(() => {});
+      }).catch((err: Error) => console.error('[Email] Failed send signed:', err.message));
     }
 
     await createAuditLog(req.user!.userId, id, 'PROJECT_SIGNED',

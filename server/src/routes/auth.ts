@@ -75,7 +75,7 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
 <p>Merci de vous être inscrit sur Cabinet Laatig.</p>
 <p><a href="${verifyUrl}">Confirmer mon adresse email</a></p>
 <p>Code de vérification : ${verificationToken}</p>`
-      }).catch(() => {});
+      }).catch((err: Error) => console.error('[Email] Failed to send:', err.message));
     }
 
     res.status(201).json({ user, token });
@@ -194,7 +194,7 @@ router.post('/forgot-password', authLimiter, async (req: Request, res: Response)
         html: `<p>Cliquez sur ce lien pour réinitialiser votre mot de passe :</p>
 <p><a href="${resetUrl}">${resetUrl}</a></p>
 <p>Ce lien expire dans 1 heure.</p>`
-      }).catch(() => {});
+      }).catch((err: Error) => console.error('[Email] Failed to send reset:', err.message));
     }
     res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
   } catch (err) {
