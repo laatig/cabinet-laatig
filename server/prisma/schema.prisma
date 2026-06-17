@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  fullName     String
+  title        String?
+  firmName     String
+  phoneNumber  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  projects     Project[]
+  auditLogs    AuditLog[]
+}
+
+model Project {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  clientName      String
+  clientAddress   String?
+  clientICE       String?
+  clientRC        String?
+  clientTP        String?
+  fiscalYearStart DateTime
+  fiscalYearEnd   DateTime
+  auditType       String
+  status          ProjectStatus  @default(IN_PROGRESS)
+  dossierStatus   DossierStatus  @default(DOCUMENTS_RECEIVED)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  documents       Document[]
+  transactions    Transaction[]
+  anomalies       Anomaly[]
+  journalEntries  JournalEntry[]
+  reports         Report[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+}
+
+enum ProjectStatus {
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+}
+
+enum DossierStatus {
+  DOCUMENTS_RECEIVED
+  AI_ANALYSIS
+  IN_REVIEW
+  VALIDATED
+}
+
+model Document {
+  id           String         @id @default(cuid())
+  projectId    String
+  project      Project        @relation(fields: [projectId], references: [id])
+  fileName     String
+  fileType     String
+  filePath     String
+  pageCount    Int            @default(0)
+  status       DocumentStatus @default(UPLOADED)
+  createdAt    DateTime       @default(now())
+  transactions Transaction[]
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  EXTRACTED
+  FAILED
+}
+
+model Transaction {
+  id             String            @id @default(cuid())
+  projectId      String
+  project        Project           @relation(fields: [projectId], references: [id])
+  documentId     String?
+  document       Document?         @relation(fields: [documentId], references: [id])
+  pcmAccountId   String?
+  pcmAccount     PcmAccount?       @relation(fields: [pcmAccountId], references: [id])
+  documentType   DocumentType
+  vendorName     String?
+  documentNumber String?
+  date           DateTime?
+  dueDate        DateTime?
+  totalAmount    Decimal           @db.Decimal(15, 2)
+  currency       String            @default("MAD")
+  taxAmount      Decimal?          @db.Decimal(15, 2)
+  taxRate        Decimal?          @db.Decimal(5, 2)
+  description    String?
+  category       String?
+  riskScore      Int               @default(0)
+  status         TransactionStatus @default(EXTRACTED)
+  isDuplicate    Boolean           @default(false)
+  duplicateOfId  String?
+  notes          String?
+  createdAt      DateTime          @default(now())
+  lineItems      LineItem[]
+  anomalies      Anomaly[]
+  journalEntries JournalEntry[]
+}
+
+enum DocumentType {
+  INVOICE
+  RECEIPT
+  BANK_STATEMENT
+}
+
+enum TransactionStatus {
+  EXTRACTED
+  VERIFIED
+  FLAGGED
+  DISPUTED
+}
+
+model LineItem {
+  id            String      @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  description   String
+  quantity      Decimal     @db.Decimal(10, 3)
+  unitPrice     Decimal     @db.Decimal(15, 2)
+  amount        Decimal     @db.Decimal(15, 2)
+}
+
+model Anomaly {
+  id            String        @id @default(cuid())
+  transactionId String
+  transaction   Transaction   @relation(fields: [transactionId], references: [id])
+  projectId     String
+  project       Project       @relation(fields: [projectId], references: [id])
+  type          String
+  severity      Severity
+  description   String
+  explanation   String?
+  status        AnomalyStatus @default(OPEN)
+  createdAt     DateTime      @default(now())
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AnomalyStatus {
+  OPEN
+  ACCEPTED
+  REJECTED
+}
+
+model PcmAccount {
+  id             String         @id @default(cuid())
+  accountNumber  String         @unique
+  accountName    String
+  classNumber    Int
+  className      String
+  isActive       Boolean        @default(true)
+  transactions   Transaction[]
+  journalEntries JournalEntry[]
+}
+
+model JournalEntry {
+  id            String       @id @default(cuid())
+  projectId     String
+  project       Project      @relation(fields: [projectId], references: [id])
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  date          DateTime
+  accountNumber String
+  pcmAccountId  String?
+  pcmAccount    PcmAccount?  @relation(fields: [pcmAccountId], references: [id])
+  description   String
+  debit         Decimal      @db.Decimal(15, 2) @default(0)
+  credit        Decimal      @db.Decimal(15, 2) @default(0)
+  reference     String?
+}
+
+model Report {
+  id          String     @id @default(cuid())
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id])
+  reportType  ReportType
+  filePath    String
+  generatedAt DateTime   @default(now())
+}
+
+enum ReportType {
+  BILAN
+  CPC
+  JOURNAL
+  GRAND_LIVRE
+  BALANCE
+  TVA
+  AUDIT
+  SYNTHESE
+  CAHIER_TRAVAIL
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  projectId String
+  project   Project          @relation(fields: [projectId], references: [id])
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+enum NotificationType {
+  STATUS_CHANGE
+  ANOMALY_DETECTED
+  REPORT_READY
+  REVIEW_COMPLETE
+  EXTRACTION_COMPLETE
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  action    String
+  details   Json?
+  ipAddress String?
+  timestamp DateTime @default(now())
+}
