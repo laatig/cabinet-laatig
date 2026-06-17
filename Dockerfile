@@ -2,25 +2,21 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install ALL dependencies
 COPY package.json ./
-COPY server/package.json ./server/package.json
-RUN npm install && cd server && npm install
-
-COPY client/package.json ./client/package.json
+COPY server/package.json server/package-lock.json ./server/
+COPY client/package.json client/package-lock.json ./client/
+RUN npm install
+RUN cd server && npm install
 RUN cd client && npm install
 
-COPY server/prisma ./server/prisma
-RUN cd server && ./node_modules/.bin/prisma generate
-
+# Copy source and build
 COPY . .
-
-RUN npm run build
+RUN cd server && npx prisma generate && npx tsc && cd ../client && npx vite build
 
 ENV NODE_ENV=production
 ENV PORT=3001
 
 EXPOSE 3001
 
-RUN cd server && ./node_modules/.bin/prisma generate
-
-CMD cd server && ./node_modules/.bin/prisma db push --accept-data-loss && ./node_modules/.bin/prisma db seed && cd .. && npm start
+CMD cd server && npx prisma db push --accept-data-loss --skip-generate && npx prisma db seed && node dist/index.js
