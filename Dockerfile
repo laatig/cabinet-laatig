@@ -4,12 +4,12 @@ WORKDIR /app
 
 COPY package.json ./
 COPY server/package.json ./server/package.json
-COPY client/package.json ./client/package.json
+RUN npm install && cd server && npm install
 
-RUN npm install
+COPY client/package.json ./client/package.json
+RUN cd client && npm install
 
 COPY server/prisma ./server/prisma
-
 RUN cd server && ./node_modules/.bin/prisma generate
 
 COPY . .
