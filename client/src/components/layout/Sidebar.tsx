@@ -95,6 +95,26 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
     ]},
   ];
 
+  const matchProject = location.pathname.match(/\/projects\/([^/]+)/);
+  const currentProjectId = matchProject?.[1];
+
+  if (!isOwner && currentProjectId) {
+    navItems.push({
+      section: 'ÉTATS DE SYNTHÈSE',
+      items: [
+        { path: `/projects/${currentProjectId}`, label: 'Mon dossier', icon: FolderOpen, exact: true },
+        { path: `/projects/${currentProjectId}/bilan`, label: 'Bilan', icon: Scale },
+        { path: `/projects/${currentProjectId}/cpc`, label: 'CPC', icon: Receipt },
+        { path: `/projects/${currentProjectId}/balance`, label: 'Balance', icon: BookOpen },
+        { path: `/projects/${currentProjectId}/journal`, label: 'Journal', icon: BookText },
+        { path: `/projects/${currentProjectId}/grand-livre`, label: 'Grand Livre', icon: ScrollText },
+        { path: `/projects/${currentProjectId}/tva`, label: 'TVA', icon: FileCheck },
+        { path: `/projects/${currentProjectId}/sig`, label: 'SIG', icon: TrendingUp },
+        { path: `/projects/${currentProjectId}/liasse-fiscale`, label: 'Liasse Fiscale', icon: FileText },
+      ],
+    });
+  }
+
   const navigateTo = (item: NavItemDef) => {
     if (item.needsProject) {
       const match = location.pathname.match(/\/projects\/(\d+)/);
