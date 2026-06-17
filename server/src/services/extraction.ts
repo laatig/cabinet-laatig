@@ -34,7 +34,7 @@ async function callClaude(prompt: string, systemPrompt: string): Promise<string>
     const err = await response.text();
     throw new Error(`Claude API error: ${response.status} ${err}`);
   }
-  const data = await response.json();
+  const data: any = await response.json();
   return data.content?.[0]?.text || '';
 }
 
@@ -68,7 +68,7 @@ async function callGroq(prompt: string, imageBase64?: string): Promise<string> {
     const err = await response.text();
     throw new Error(`Groq API error: ${response.status} ${err}`);
   }
-  const data = await response.json();
+  const data: any = await response.json();
   return data.choices?.[0]?.message?.content || '';
 }
 
