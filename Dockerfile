@@ -22,4 +22,6 @@ ENV PORT=3001
 
 EXPOSE 3001
 
-CMD ["npm", "start"]
+RUN cd server && npx --package prisma@6.5.0 -- prisma generate
+
+CMD cd server && npx --package prisma@6.5.0 -- prisma migrate deploy && cd .. && npm start
