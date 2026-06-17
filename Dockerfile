@@ -8,6 +8,7 @@ COPY client/package.json client/package-lock.json ./client/
 
 RUN npm install
 RUN cd server && npm install
+RUN cd client && npm install
 
 COPY . .
 
