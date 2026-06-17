@@ -37,6 +37,10 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '1.0.0' });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api', documentRoutes);
@@ -47,10 +51,6 @@ app.use('/api', reportRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/pcm-accounts', pcmRoutes);
 app.use('/api/demo', demoRoutes);
-
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '1.0.0' });
-});
 
 if (!config.isDev) {
   const clientDist = path.resolve(__dirname, '../../client/dist');
