@@ -19,4 +19,4 @@ ENV PORT=3001
 
 EXPOSE 3001
 
-CMD npm start
+CMD cd server && npx prisma db push --accept-data-loss && npm run seed && npm start
