@@ -47,13 +47,19 @@ export default function DocumentReviewPage() {
   };
 
   if (loading) {
-    return <div className="page-content" style={{ display: 'flex', justifyContent: 'center', paddingTop: 80 }}>
-      <div className="gold-spinner" />
-    </div>;
+    return (
+      <div className="page-content" style={{ display: 'flex', justifyContent: 'center', paddingTop: 80 }}>
+        <div className="gold-spinner" />
+      </div>
+    );
   }
 
   if (!doc) {
-    return <div className="page-content"><p>Document introuvable</p></div>;
+    return (
+      <div className="page-content">
+        <p>Document introuvable</p>
+      </div>
+    );
   }
 
   const extraction = doc.extractions?.[0];
@@ -63,7 +69,7 @@ export default function DocumentReviewPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Examen du document</h1>
-          <p className="page-subtitle">{doc.fileName} — {doc.category}</p>
+          <p className="page-subtitle">{doc.fileName} - {doc.category}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="login-btn" style={{ background: 'var(--cl-success)' }} onClick={handleApprove}>
@@ -89,14 +95,14 @@ export default function DocumentReviewPage() {
               )}
             </p>
             <p style={{ color: 'var(--cl-text-muted)', fontSize: 12, marginTop: 8 }}>
-              Version {doc.version} · Catégorie : {doc.category} · Exercice {doc.fiscalYear}
+              Version {doc.version} - Categorie : {doc.category} - Exercice {doc.fiscalYear}
             </p>
           </div>
         </div>
 
         <div className="section-card">
-          <h3 style={{ color: 'var(--cl-gold)', marginBottom: 16, fontSize: 15, fontWeight: 600}>
-            Données extraites par l'IA
+          <h3 style={{ color: 'var(--cl-gold)', marginBottom: 16, fontSize: 15, fontWeight: 600 }}>
+            Donnees extraites par l IA
             {extraction && (
               <span style={{
                 fontSize: 12, fontWeight: 400, marginLeft: 12,
