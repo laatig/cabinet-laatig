@@ -123,10 +123,19 @@ async function main() {
 
   console.log(`Created ${pcmAccounts.length} PCM accounts`);
 
-  // Create test user
+  // Create or update test user
   const passwordHash = await bcrypt.hash('Laatig2024!', 12);
-  const user = await prisma.user.create({
-    data: {
+  const user = await prisma.user.upsert({
+    where: { email: 'mustapha@cabinetlaatig.ma' },
+    update: {
+      fullName: 'Mustapha Atiq',
+      role: 'OWNER',
+      emailVerified: true,
+      title: 'Expert-Comptable',
+      firmName: 'Cabinet Laatig',
+      phoneNumber: '+212 6 62 22 89 63',
+    },
+    create: {
       email: 'mustapha@cabinetlaatig.ma',
       passwordHash,
       fullName: 'Mustapha Atiq',
@@ -137,7 +146,7 @@ async function main() {
       phoneNumber: '+212 6 62 22 89 63',
     },
   });
-  console.log(`Created user: ${user.email}`);
+  console.log(`Created/updated user: ${user.email} (role=${user.role})`);
 
   // Create 2 projects
   const project1 = await prisma.project.create({

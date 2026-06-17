@@ -59,14 +59,11 @@ export default function TransactionsPage() {
     { key: 'documentNumber', label: 'transaction.docNum' },
     { key: 'vendorName', label: 'transaction.vendor', render: (row: Transaction) => <span className="cell-vendor-name">{row.vendorName}</span> },
     { key: 'description', label: 'transaction.description' },
-    { key: 'amount', label: 'transaction.amount', render: (row: Transaction) => <span className="cell-amount">{formatCurrency(row.amount)}</span> },
-    { key: 'pcmAccountCode', label: 'transaction.pcm', render: (row: Transaction) => (
+    { key: 'totalAmount', label: 'transaction.amount', render: (row: Transaction) => <span className="cell-amount">{formatCurrency(row.totalAmount)}</span> },
+    { key: 'pcmAccount', label: 'transaction.pcm', render: (row: Transaction) => (
       <div>
-        <span style={{ color: 'var(--cl-gold)', fontWeight: 600, fontSize: 12 }}>{row.pcmAccountCode}</span>
-        {row.pcmAccountLabel && <div style={{ fontSize: 11, color: 'var(--cl-text-muted)' }}>{row.pcmAccountLabel}</div>}
-        <div style={{ fontSize: 10, color: row.pcmConfidence > 80 ? 'var(--cl-success)' : 'var(--cl-warning)', marginTop: 2 }}>
-          {tr('pcm.confidence', lang)}: {row.pcmConfidence}%
-        </div>
+        <span style={{ color: 'var(--cl-gold)', fontWeight: 600, fontSize: 12 }}>{row.pcmAccount?.accountNumber}</span>
+        {row.pcmAccount?.accountName && <div style={{ fontSize: 11, color: 'var(--cl-text-muted)' }}>{row.pcmAccount.accountName}</div>}
       </div>
     )},
     { key: 'riskScore', label: 'transaction.risk', render: (row: Transaction) => <RiskBadge score={row.riskScore} /> },
@@ -123,19 +120,19 @@ export default function TransactionsPage() {
             <div className="form-group">
               <label className="form-label">Transaction</label>
               <div style={{ fontSize: 14, color: 'var(--cl-text-primary)' }}>
-                {editingPcm.vendorName} — {formatCurrency(editingPcm.amount)}
+                {editingPcm.vendorName} — {formatCurrency(editingPcm.totalAmount)}
               </div>
             </div>
             <div className="form-group">
               <label className="form-label">{tr('transaction.pcm', lang)}</label>
               <PcmSelector
-                value={`${editingPcm.pcmAccountCode} - ${editingPcm.pcmAccountLabel}`}
+                value={`${editingPcm.pcmAccount?.accountNumber || ''} - ${editingPcm.pcmAccount?.accountName || ''}`}
                 onChange={(code, label) => {
                   api.patch(`/transactions/${editingPcm.id}`, { pcmAccountCode: code, pcmAccountLabel: label })
                     .then(fetchTxns);
                   setEditingPcm(null);
                 }}
-                confidence={editingPcm.pcmConfidence}
+                confidence={editingPcm.pcmAccount ? undefined : 0}
               />
             </div>
           </div>

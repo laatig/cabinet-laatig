@@ -5,7 +5,27 @@ import { t } from '../lib/translations';
 import { formatNumber } from '../lib/utils';
 import api from '../lib/api';
 import { Download } from 'lucide-react';
-import type { TvaDeclaration } from '../types';
+
+interface TvaSection {
+  rows: Array<{ label: string; base: number; taux: number; montant: number }>;
+  total: number;
+}
+
+interface TvaDeclaration {
+  id: string;
+  period: string;
+  declarationType: string;
+  status: string;
+  totalHT: number;
+  totalTVA: number;
+  totalTTC: number;
+  base: number;
+  dueDate: string;
+  createdAt: string;
+  collectee: TvaSection;
+  deductible: TvaSection;
+  netDue: number;
+}
 
 const MONTHS = [
   'common.month.january', 'common.month.february', 'common.month.march',

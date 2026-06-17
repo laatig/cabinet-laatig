@@ -43,7 +43,7 @@ export default function ProjectsPage() {
 
   const openEdit = (p: Project) => {
     setEditing(p);
-    setForm({ clientId: String(p.clientId), fiscalYear: p.fiscalYear, auditType: p.auditType, notes: p.notes });
+    setForm({ clientId: String(p.clientId), fiscalYear: p.fiscalYearStart, auditType: p.auditType, notes: p.notes });
     setShowModal(true);
   };
 
@@ -69,7 +69,7 @@ export default function ProjectsPage() {
     const q = search.toLowerCase();
     return (
       p.client?.name?.toLowerCase().includes(q) ||
-      p.fiscalYear.includes(q)
+      p.fiscalYearStart.includes(q)
     );
   });
 
@@ -117,7 +117,7 @@ export default function ProjectsPage() {
                 {p.client?.ice && `ICE: ${p.client.ice}`}
               </div>
               <div className="project-card-meta">
-                <span className="project-card-attr">{p.fiscalYear}</span>
+                <span className="project-card-attr">{p.fiscalYearStart}</span>
                 <span className="project-card-attr">{p.auditType === 'legal_audit' ? 'Audit Légal' : p.auditType}</span>
                 <span className={`status-pill ${getStatusClass(p.status)}`}>{p.status}</span>
                 <span className={`status-pill ${getStatusClass(p.dossierStatus)}`}>{p.dossierStatus}</span>

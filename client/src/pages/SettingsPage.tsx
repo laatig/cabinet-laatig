@@ -9,7 +9,7 @@ export default function SettingsPage() {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const [apiKey, setApiKey] = useState('');
-  const [name, setName] = useState(user?.name || '');
+  const [name, setName] = useState(user?.fullName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [saved, setSaved] = useState(false);
 

@@ -66,6 +66,13 @@ export default function LoginPage() {
         <div className="login-seal">CL</div>
         <div className="login-left-brand">CABINET LAATIG</div>
         <div className="login-left-tagline">{t('app.tagline', lang)}</div>
+        {mode === 'login' && (
+          <div style={{ marginTop: 'auto', marginBottom: 40, textAlign: 'center', color: 'var(--cl-text-secondary)', fontSize: 13, lineHeight: 1.6 }}>
+            Vous êtes un nouveau client ?<br />
+            Créez votre espace pour nous transmettre<br />
+            vos documents comptables en toute sécurité.
+          </div>
+        )}
         <div className="login-left-footer">Maroc · Depuis 2009</div>
       </div>
       <div className="login-right">
@@ -102,6 +109,15 @@ export default function LoginPage() {
               <button className="login-btn" type="submit" disabled={loading}>
                 {loading ? 'Connexion...' : 'Se connecter'}
               </button>
+              <div style={{ textAlign: 'center', marginTop: 16 }}>
+                <span style={{ color: 'var(--cl-text-secondary)', fontSize: 13 }}>
+                  Pas encore de compte ?{' '}
+                </span>
+                <button type="button" onClick={() => setMode('register')}
+                  style={{ background: 'none', border: 'none', color: 'var(--cl-gold)', cursor: 'pointer', fontSize: 13, textDecoration: 'underline' }}>
+                  Créer un compte
+                </button>
+              </div>
             </form>
           ) : (
             <form className="login-form" onSubmit={handleRegister}>
