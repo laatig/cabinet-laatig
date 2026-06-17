@@ -16,6 +16,7 @@ import pcmRoutes from './routes/pcm';
 import demoRoutes from './routes/demo';
 import ownerRoutes from './routes/owner';
 import clientRoutes from './routes/client';
+import financialRoutes from './routes/financials';
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use('/api/pcm-accounts', pcmRoutes);
 app.use('/api/demo', demoRoutes);
 app.use('/api/owner', ownerRoutes);
 app.use('/api/client', clientRoutes);
+app.use('/api', financialRoutes);
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Unhandled error:', err);

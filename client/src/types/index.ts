@@ -186,3 +186,51 @@ export interface DashboardStats {
   pendingReviews: number;
   signedProjects: number;
 }
+
+export interface BilanEntry {
+  type: 'actif' | 'passif';
+  label: string;
+  net: number;
+  level: number;
+  isTotal?: boolean;
+  isSubtotal?: boolean;
+}
+
+export interface CpcEntry {
+  type: 'produits' | 'charges';
+  label: string;
+  montant: number;
+  level: number;
+  isTotal?: boolean;
+  isSubtotal?: boolean;
+}
+
+export interface BalanceEntry {
+  code: string;
+  label: string;
+  classe: string;
+  debit: number;
+  credit: number;
+  soldeDebit: number;
+  soldeCredit: number;
+}
+
+export interface JournalEntry {
+  id: string;
+  date: string;
+  numero: string;
+  libelle: string;
+  compte: string;
+  debit: number;
+  credit: number;
+}
+
+export interface GrandLivreEntry {
+  date: string;
+  libelle: string;
+  compte: string;
+  label: string;
+  debit: number;
+  credit: number;
+  solde: number;
+}
