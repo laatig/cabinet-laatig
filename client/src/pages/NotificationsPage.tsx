@@ -13,15 +13,15 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     api.get('/notifications')
-      .then((r) => setNotifs(r.data.data || r.data))
+      .then((r) => setNotifs(r.data.notifications || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   const markAllRead = async () => {
     try {
-      await api.post('/notifications/read-all');
-      setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
+      await api.post('/notifications/mark-read');
+      setNotifs((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch { /* ignore */ }
   };
 
@@ -50,9 +50,9 @@ export default function NotificationsPage() {
             </div>
           ) : (
             notifs.map((n) => (
-              <div key={n.id} className={`notif-dropdown-item ${!n.read ? 'unread' : ''}`} style={{ padding: '14px 20px' }}>
+              <div key={n.id} className={`notif-dropdown-item ${!n.isRead ? 'unread' : ''}`} style={{ padding: '14px 20px' }}>
                 <div style={{ flex: 1 }}>
-                  <div className="notif-item-title">{n.title}</div>
+                  <div className="notif-item-title">{n.type}</div>
                   <div className="notif-item-desc">{n.message}</div>
                   <div className="notif-item-time">{formatDateTime(n.createdAt)}</div>
                 </div>

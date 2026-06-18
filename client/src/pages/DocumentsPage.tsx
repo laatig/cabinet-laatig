@@ -20,7 +20,7 @@ export default function DocumentsPage() {
 
   const fetchDocs = () => {
     api.get(`/projects/${id}/documents`)
-      .then((r) => setDocs(r.data.data || r.data))
+      .then((r) => setDocs(r.data.documents || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   };
@@ -34,16 +34,15 @@ export default function DocumentsPage() {
   };
 
   const columns = [
-    { key: 'originalName', label: 'Nom', render: (d: Document) => (
+    { key: 'fileName', label: 'Nom', render: (d: Document) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <FileText size={16} style={{ color: 'var(--cl-gold)', flexShrink: 0 }} />
-        <span className="cell-vendor-name">{d.originalName}</span>
+        <span className="cell-vendor-name">{d.fileName}</span>
       </div>
     )},
     { key: 'status', label: 'Statut', render: (d: Document) => (
       <span className={`status-pill ${getStatusClass(d.status)}`}>{d.status}</span>
     )},
-    { key: 'fileSize', label: 'Taille', render: (d: Document) => `${(d.fileSize / 1024 / 1024).toFixed(2)} MB` },
     { key: 'createdAt', label: 'Date', render: (d: Document) => <span className="cell-date">{formatDate(d.createdAt)}</span> },
   ];
 
@@ -54,7 +53,7 @@ export default function DocumentsPage() {
         <div className="page-gold-rule" />
       </div>
 
-      <UploadZone projectId={Number(id)} onUploadComplete={fetchDocs} />
+      <UploadZone projectId={id!} onUploadComplete={fetchDocs} />
 
       <div style={{ marginTop: 28 }}>
         <div className="panel">

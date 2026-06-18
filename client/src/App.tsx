@@ -28,6 +28,10 @@ import ClientDashboard from './pages/ClientDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
 import ClientProjectDetail from './pages/ClientProjectDetail';
 import DocumentReviewPage from './pages/DocumentReviewPage';
+import OwnerClientsPage from './pages/OwnerClientsPage';
+import OwnerProjectsPage from './pages/OwnerProjectsPage';
+import OwnerSignaturesPage from './pages/OwnerSignaturesPage';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -56,7 +60,7 @@ export default function App() {
   const { user } = useAuth();
 
   return (
-    <Routes>
+    <ErrorBoundary><Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/"
@@ -70,9 +74,9 @@ export default function App() {
           <>
             <Route index element={<OwnerDashboard />} />
             <Route path="owner" element={<OwnerDashboard />} />
-            <Route path="owner/clients" element={<div className="page-content"><p>Liste des clients</p></div>} />
-            <Route path="owner/projects" element={<div className="page-content"><p>Tous les dossiers</p></div>} />
-            <Route path="owner/signatures" element={<div className="page-content"><p>Registre des signatures</p></div>} />
+            <Route path="owner/clients" element={<OwnerClientsPage />} />
+            <Route path="owner/projects" element={<OwnerProjectsPage />} />
+            <Route path="owner/signatures" element={<OwnerSignaturesPage />} />
           </>
         ) : (
           <>
@@ -105,6 +109,6 @@ export default function App() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="about" element={<AboutPage />} />
       </Route>
-    </Routes>
+    </Routes></ErrorBoundary>
   );
 }

@@ -14,7 +14,7 @@ export default function AuditTrailPage() {
 
   useEffect(() => {
     api.get('/audit-logs', { params: { limit: 100 } })
-      .then((r) => setLogs(r.data.data || r.data))
+      .then((r) => setLogs(r.data.logs || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -22,9 +22,9 @@ export default function AuditTrailPage() {
   const filtered = filter ? logs.filter((l) => l.action.toLowerCase().includes(filter.toLowerCase())) : logs;
 
   const exportCsv = () => {
-    const headers = 'Date,Utilisateur,Action,Détails,Entité,ID\n';
+    const headers = 'Date,Utilisateur,Action,Détails\n';
     const rows = filtered.map((l) =>
-      `"${formatDateTime(l.createdAt)}","${l.user?.name || ''}","${l.action}","${l.details}","${l.entityType}","${l.entityId}"`
+      `"${formatDateTime(l.timestamp)}","${l.user?.fullName || ''}","${l.action}","${JSON.stringify(l.details || {})}"`
     ).join('\n');
     const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -81,10 +81,10 @@ export default function AuditTrailPage() {
                   </div>
                   <div className="audit-trail-content">
                     <div className="audit-trail-action">
-                      <strong>{log.user?.name || 'Système'}</strong> — {log.action}
+                      <strong>{log.user?.fullName || 'Système'}</strong> — {log.action}
                     </div>
                     <div className="audit-trail-detail">{log.details}</div>
-                    <div className="audit-trail-time">{formatDateTime(log.createdAt)}</div>
+                    <div className="audit-trail-time">{formatDateTime(log.timestamp)}</div>
                   </div>
                 </div>
               ))}

@@ -21,7 +21,7 @@ export default function PcmSelector({ value, onChange, confidence }: PcmSelector
     if (query.length < 1) { setResults([]); return; }
     const timer = setTimeout(() => {
       api.get('/pcm/search', { params: { q: query } })
-        .then((res) => setResults(res.data.data || res.data))
+        .then((res) => setResults(res.data.accounts || res.data))
         .catch(() => setResults([]));
     }, 300);
     return () => clearTimeout(timer);
@@ -58,16 +58,16 @@ export default function PcmSelector({ value, onChange, confidence }: PcmSelector
         <div className="pcm-dropdown">
           {results.map((acc) => (
             <div
-              key={acc.code}
-              className={`pcm-option ${value === acc.code ? 'active' : ''}`}
+              key={acc.accountNumber}
+              className={`pcm-option ${value === acc.accountNumber ? 'active' : ''}`}
               onClick={() => {
-                setQuery(`${acc.code} - ${acc.label}`);
-                onChange(acc.code, acc.label);
+                setQuery(`${acc.accountNumber} - ${acc.accountName}`);
+                onChange(acc.accountNumber, acc.accountName);
                 setOpen(false);
               }}
             >
-              <span className="pcm-option-code">{acc.code}</span>
-              {acc.label}
+              <span className="pcm-option-code">{acc.accountNumber}</span>
+              {acc.accountName}
             </div>
           ))}
         </div>

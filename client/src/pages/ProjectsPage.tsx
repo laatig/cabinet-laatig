@@ -6,30 +6,32 @@ import { getStatusClass, formatDate } from '../lib/utils';
 import Modal from '../components/ui/Modal';
 import api from '../lib/api';
 import { Plus, Search } from 'lucide-react';
-import type { Project, Client } from '../types';
+import type { Project } from '../types';
+
+interface UserOption { id: string; email: string; fullName: string; clientICE?: string; }
 
 export default function ProjectsPage() {
   const { lang } = useLanguage();
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Project | null>(null);
   const [search, setSearch] = useState('');
 
   const [form, setForm] = useState({
-    clientId: '',
-    fiscalYear: '',
+    clientName: '',
+    fiscalYearStart: '',
+    fiscalYearEnd: '',
     auditType: 'legal_audit',
-    notes: '',
   });
 
   const fetchData = () => {
     setLoading(true);
     Promise.all([
-      api.get('/projects').then((r) => setProjects(r.data.data || r.data)),
-      api.get('/clients').then((r) => setClients(r.data.data || r.data)),
+      api.get('/projects').then((r) => setProjects(r.data.projects || [])),
+      api.get('/owner/clients').then((r) => setClients(r.data.clients || [])),
     ]).catch(() => {}).finally(() => setLoading(false));
   };
 
@@ -37,28 +39,27 @@ export default function ProjectsPage() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ clientId: '', fiscalYear: new Date().getFullYear().toString(), auditType: 'legal_audit', notes: '' });
+    setForm({ clientName: '', fiscalYearStart: '', fiscalYearEnd: '', auditType: 'legal_audit' });
     setShowModal(true);
   };
 
   const openEdit = (p: Project) => {
     setEditing(p);
-    setForm({ clientId: String(p.clientId), fiscalYear: p.fiscalYearStart, auditType: p.auditType, notes: p.notes });
+    setForm({ clientName: p.clientName, fiscalYearStart: p.fiscalYearStart?.slice(0, 10) || '', fiscalYearEnd: p.fiscalYearEnd?.slice(0, 10) || '', auditType: p.auditType });
     setShowModal(true);
   };
 
   const handleSave = async () => {
-    const payload = { ...form, clientId: Number(form.clientId) };
     if (editing) {
-      await api.patch(`/projects/${editing.id}`, payload);
+      await api.patch(`/projects/${editing.id}`, form);
     } else {
-      await api.post('/projects', payload);
+      await api.post('/projects', form);
     }
     setShowModal(false);
     fetchData();
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Supprimer ce projet ?')) return;
     await api.delete(`/projects/${id}`);
     fetchData();
@@ -68,8 +69,8 @@ export default function ProjectsPage() {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
-      p.client?.name?.toLowerCase().includes(q) ||
-      p.fiscalYearStart.includes(q)
+      p.clientName?.toLowerCase().includes(q) ||
+      (p.fiscalYearStart && p.fiscalYearStart.includes(q))
     );
   });
 
@@ -112,12 +113,12 @@ export default function ProjectsPage() {
         <div className="project-grid">
           {filtered.map((p) => (
             <div key={p.id} className="project-card" onClick={() => navigate(`/projects/${p.id}`)}>
-              <div className="project-card-title">{p.client?.name || `Projet #${p.id}`}</div>
+              <div className="project-card-title">{p.clientName || `Projet #${p.id}`}</div>
               <div className="project-card-client">
-                {p.client?.ice && `ICE: ${p.client.ice}`}
+                {p.clientICE && `ICE: ${p.clientICE}`}
               </div>
               <div className="project-card-meta">
-                <span className="project-card-attr">{p.fiscalYearStart}</span>
+                <span className="project-card-attr">{p.fiscalYearStart ? new Date(p.fiscalYearStart).getFullYear() : ''}</span>
                 <span className="project-card-attr">{p.auditType === 'legal_audit' ? 'Audit Légal' : p.auditType}</span>
                 <span className={`status-pill ${getStatusClass(p.status)}`}>{p.status}</span>
                 <span className={`status-pill ${getStatusClass(p.dossierStatus)}`}>{p.dossierStatus}</span>
@@ -148,16 +149,17 @@ export default function ProjectsPage() {
       >
         <div className="form-group">
           <label className="form-label">{t('project.client', lang)}</label>
-          <select className="form-input form-select" value={form.clientId} onChange={(e) => setForm((f) => ({ ...f, clientId: e.target.value }))}>
-            <option value="">Sélectionner un client</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>{c.name} — {c.ice}</option>
-            ))}
-          </select>
+          <input className="form-input" value={form.clientName} onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))} placeholder="Nom du client" />
         </div>
-        <div className="form-group">
-          <label className="form-label">{t('project.fiscalYear', lang)}</label>
-          <input className="form-input" value={form.fiscalYear} onChange={(e) => setForm((f) => ({ ...f, fiscalYear: e.target.value }))} />
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">{t('project.fiscalYear', lang)}</label>
+            <input className="form-input" type="date" value={form.fiscalYearStart} onChange={(e) => setForm((f) => ({ ...f, fiscalYearStart: e.target.value }))} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Date fin</label>
+            <input className="form-input" type="date" value={form.fiscalYearEnd} onChange={(e) => setForm((f) => ({ ...f, fiscalYearEnd: e.target.value }))} />
+          </div>
         </div>
         <div className="form-group">
           <label className="form-label">{t('project.auditType', lang)}</label>
@@ -170,7 +172,7 @@ export default function ProjectsPage() {
         </div>
         <div className="form-group">
           <label className="form-label">{t('project.notes', lang)}</label>
-          <textarea className="form-input" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} />
+          <textarea className="form-input" placeholder="Notes (optionnel)" rows={3} />
         </div>
       </Modal>
     </div>

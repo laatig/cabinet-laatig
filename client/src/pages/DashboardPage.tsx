@@ -25,13 +25,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      api.get('/projects').then((r) => setProjects(r.data.data || r.data)).catch(() => {}),
-      api.get('/audit-logs?limit=10').then((r) => setLogs(r.data.data || r.data)).catch(() => {}),
+      api.get('/projects').then((r) => setProjects(r.data.projects || [])).catch(() => {}),
+      api.get('/audit-logs?limit=10').then((r) => setLogs(r.data.logs || [])).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 
-  const activeProjects = projects.filter((p) => p.status === 'en_cours' || p.status === 'draft');
-  const anomalyCount = projects.reduce((sum, p) => sum + (p.anomalyCount || 0), 0);
+  const activeProjects = projects.filter((p) => p.status === 'IN_PROGRESS' || p.status === 'REVIEW');
+  const anomalyCount = projects.reduce((sum, p) => sum + (p._count?.anomalies || 0), 0);
   const totalTva = 45230.50;
 
   return (
@@ -97,7 +97,7 @@ export default function DashboardPage() {
                       <div className="audit-trail-content">
                         <div className="audit-trail-action">{log.action}</div>
                         <div className="audit-trail-detail">{log.details}</div>
-                        <div className="audit-trail-time">{formatDateTime(log.createdAt)}</div>
+                        <div className="audit-trail-time">{formatDateTime(log.timestamp)}</div>
                       </div>
                     </div>
                   ))

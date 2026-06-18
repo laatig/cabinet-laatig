@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../lib/translations';
 import { formatCurrency, formatDateTime } from '../lib/utils';
 import RiskBadge from '../components/ui/RiskBadge';
+import Modal from '../components/ui/Modal';
 import api from '../lib/api';
 import {
   AlertTriangle,
@@ -29,10 +30,12 @@ export default function AnomaliesPage() {
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [commentTarget, setCommentTarget] = useState<Anomaly | null>(null);
+  const [commentText, setCommentText] = useState('');
 
   const fetchAnomalies = () => {
     api.get(`/projects/${id}/anomalies`)
-      .then((r) => setAnomalies(r.data.data || r.data))
+      .then((r) => setAnomalies(r.data.anomalies || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   };
@@ -45,8 +48,16 @@ export default function AnomaliesPage() {
 
   const filtered = filter === 'all' ? anomalies : filter === 'critical' ? anomalies.filter((a) => a.severity === 'critical') : anomalies.filter((a) => a.status === filter);
 
-  const handleAction = async (anomalyId: number, action: string) => {
-    await api.post(`/anomalies/${anomalyId}/${action}`);
+  const handleAction = async (anomalyId: string, action: string) => {
+    await api.post(`/anomalies/${anomalyId}/${action === 'accept' ? 'accept' : 'reject'}`);
+    fetchAnomalies();
+  };
+
+  const handleComment = async () => {
+    if (!commentTarget || !commentText.trim()) return;
+    await api.post(`/anomalies/${commentTarget.id}/comment`, { explanation: commentText });
+    setCommentTarget(null);
+    setCommentText('');
     fetchAnomalies();
   };
 
@@ -113,14 +124,19 @@ export default function AnomaliesPage() {
                     </span>
                   </div>
                   <div className="anomaly-desc">{a.description}</div>
+                  {a.explanation && (
+                    <div style={{ fontSize: 12, color: 'var(--cl-text-muted)', marginTop: 4, fontStyle: 'italic' }}>
+                      Note: {a.explanation}
+                    </div>
+                  )}
                   <div className="anomaly-meta">
                     {a.transaction && (
                       <>
                         <span>{a.transaction.vendorName}</span>
-                        <span>{formatCurrency(a.transaction.amount)}</span>
+                        <span>{formatCurrency(a.transaction.totalAmount)}</span>
                       </>
                     )}
-                    <span>{formatDateTime(a.detectedAt)}</span>
+                    <span>{formatDateTime(a.createdAt)}</span>
                   </div>
                   <div className="anomaly-actions">
                     {a.status === 'open' && (
@@ -133,7 +149,7 @@ export default function AnomaliesPage() {
                         </button>
                       </>
                     )}
-                    <button className="btn btn-sm btn-ghost">
+                    <button className="btn btn-sm btn-ghost" onClick={() => { setCommentTarget(a); setCommentText(a.explanation || ''); }}>
                       <MessageSquare size={14} /> {t('anomaly.comment', lang)}
                     </button>
                   </div>
@@ -143,6 +159,29 @@ export default function AnomaliesPage() {
           })}
         </div>
       )}
+
+      <Modal
+        open={commentTarget != null}
+        onClose={() => setCommentTarget(null)}
+        title={`Commentaire — ${commentTarget?.type || ''}`}
+        footer={
+          <>
+            <button className="btn btn-ghost" onClick={() => setCommentTarget(null)}>{t('common.cancel', lang)}</button>
+            <button className="btn btn-primary" onClick={handleComment} disabled={!commentText.trim()}>{t('common.save', lang)}</button>
+          </>
+        }
+      >
+        <div className="form-group">
+          <label className="form-label">Explication / Plan d'action</label>
+          <textarea
+            className="form-input"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            rows={5}
+            placeholder="Décrivez le plan d'action ou l'explication..."
+          />
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { t } from '../../lib/translations';
 import api from '../../lib/api';
 
 interface UploadZoneProps {
-  projectId: number;
+  projectId: string;
   onUploadComplete: () => void;
 }
 

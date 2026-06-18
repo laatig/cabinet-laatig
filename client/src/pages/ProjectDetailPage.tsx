@@ -27,7 +27,7 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     api.get(`/projects/${id}`)
-      .then((r) => setProject(r.data))
+      .then((r) => setProject(r.data.project || r.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);
@@ -40,14 +40,14 @@ export default function ProjectDetailPage() {
     return <div className="empty-state"><div className="empty-state-title">Projet introuvable</div></div>;
   }
 
-  const dossierIdx = ['depot', 'extraction', 'revision', 'validation', 'signature'].indexOf(project.dossierStatus);
+  const dossierIdx = ['DOCUMENTS_RECEIVED', 'AI_ANALYSIS', 'IN_REVIEW', 'VALIDATED', 'SIGNED'].indexOf(project.dossierStatus);
   const currentStep = dossierIdx >= 0 ? dossierIdx : 0;
 
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">{project.client?.name || `Projet #${project.id}`}</div>
-        <div className="page-subtitle">{project.fiscalYear} · {project.auditType}</div>
+        <div className="page-title">{project.clientName || `Projet #${project.id}`}</div>
+        <div className="page-subtitle">{project.fiscalYearStart ? new Date(project.fiscalYearStart).getFullYear() : ''} · {project.auditType}</div>
         <div className="page-gold-rule" />
       </div>
 
@@ -58,9 +58,9 @@ export default function ProjectDetailPage() {
       </div>
 
       <div className="kpi-grid">
-        <KpiCard label={t('nav.transactions', lang)} value={String(project.transactionCount || 0)} icon={<ArrowLeftRight />} />
-        <KpiCard label={t('nav.anomalies', lang)} value={String(project.anomalyCount || 0)} icon={<AlertTriangle />} />
-        <KpiCard label="Documents" value={String(project.documentCount || 0)} icon={<FileText />} />
+        <KpiCard label={t('nav.transactions', lang)} value={String(project._count?.transactions || 0)} icon={<ArrowLeftRight />} />
+        <KpiCard label={t('nav.anomalies', lang)} value={String(project._count?.anomalies || 0)} icon={<AlertTriangle />} />
+        <KpiCard label="Documents" value={String(project._count?.documents || 0)} icon={<FileText />} />
       </div>
 
       <div className="panel" style={{ marginBottom: 24 }}>
@@ -100,11 +100,11 @@ export default function ProjectDetailPage() {
           <div className="form-row">
             <div>
               <div className="form-label">{t('project.client', lang)}</div>
-              <div style={{ fontSize: 14, color: 'var(--cl-text-primary)' }}>{project.client?.name}</div>
+              <div style={{ fontSize: 14, color: 'var(--cl-text-primary)' }}>{project.clientName}</div>
             </div>
             <div>
               <div className="form-label">{t('project.fiscalYear', lang)}</div>
-              <div style={{ fontSize: 14, color: 'var(--cl-text-primary)' }}>{project.fiscalYear}</div>
+              <div style={{ fontSize: 14, color: 'var(--cl-text-primary)' }}>{project.fiscalYearStart ? new Date(project.fiscalYearStart).getFullYear() : ''}</div>
             </div>
             <div>
               <div className="form-label">{t('project.auditType', lang)}</div>
@@ -112,17 +112,11 @@ export default function ProjectDetailPage() {
             </div>
             <div>
               <div className="form-label">{t('project.status', lang)}</div>
-              <span className={`status-pill ${project.status === 'en_cours' ? 'processing' : 'pending'}`}>
+              <span className={`status-pill ${project.status === 'IN_PROGRESS' ? 'processing' : 'pending'}`}>
                 {project.status}
               </span>
             </div>
           </div>
-          {project.notes && (
-            <div style={{ marginTop: 16 }}>
-              <div className="form-label">{t('project.notes', lang)}</div>
-              <div style={{ fontSize: 13, color: 'var(--cl-text-secondary)' }}>{project.notes}</div>
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -16,10 +16,10 @@ export default function NotificationBell() {
   const { lang } = useLanguage();
 
   useEffect(() => {
-    api.get('/notifications?limit=10')
+    api.get('/notifications', { params: { limit: 10 } })
       .then((res) => {
-        setNotifs(res.data.data || res.data);
-        setUnreadCount(res.data.data?.filter((n: Notification) => !n.read).length || 0);
+        setNotifs(res.data.notifications || []);
+        setUnreadCount(res.data.unreadCount || 0);
       })
       .catch(() => {});
   }, []);
@@ -34,8 +34,8 @@ export default function NotificationBell() {
 
   const markAllRead = async () => {
     try {
-      await api.post('/notifications/read-all');
-      setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
+      await api.post('/notifications/mark-read');
+      setNotifs((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch { /* ignore */ }
   };
@@ -63,9 +63,9 @@ export default function NotificationBell() {
           ) : (
             <>
               {notifs.map((n) => (
-                <div key={n.id} className={`notif-dropdown-item ${!n.read ? 'unread' : ''}`}>
+                <div key={n.id} className={`notif-dropdown-item ${!n.isRead ? 'unread' : ''}`}>
                   <div style={{ flex: 1 }}>
-                    <div className="notif-item-title">{n.title}</div>
+                    <div className="notif-item-title">{n.type}</div>
                     <div className="notif-item-desc">{n.message}</div>
                     <div className="notif-item-time">{formatDateTime(n.createdAt)}</div>
                   </div>

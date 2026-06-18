@@ -149,6 +149,39 @@ router.get('/me', authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
+router.post('/change-password', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: 'Champs requis: currentPassword, newPassword' });
+      return;
+    }
+    if (newPassword.length < 8) {
+      res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères' });
+      return;
+    }
+    const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
+    if (!user) {
+      res.status(404).json({ error: 'Utilisateur introuvable' });
+      return;
+    }
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) {
+      res.status(401).json({ error: 'Mot de passe actuel incorrect' });
+      return;
+    }
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    });
+    res.json({ message: 'Mot de passe modifié avec succès' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ error: 'Erreur lors du changement de mot de passe' });
+  }
+});
+
 router.post('/verify-email', async (req: Request, res: Response) => {
   try {
     const { token } = req.body;

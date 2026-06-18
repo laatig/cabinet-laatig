@@ -22,19 +22,19 @@ export default function TransactionsPage() {
   const { lang } = useLanguage();
   const [txns, setTxns] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editingPcm, setEditingPcm] = useState<Transaction | null>(null);
 
   const fetchTxns = () => {
     api.get(`/projects/${id}/transactions`)
-      .then((r) => setTxns(r.data.data || r.data))
+      .then((r) => setTxns(r.data.transactions || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchTxns(); }, [id]);
 
-  const toggleSelect = (txnId: number) => {
+  const toggleSelect = (txnId: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(txnId)) next.delete(txnId);
@@ -55,7 +55,7 @@ export default function TransactionsPage() {
     { key: 'select', label: '', width: '40px', sortable: false, render: (t: Transaction) => (
       <input type="checkbox" checked={selected.has(t.id)} onChange={() => toggleSelect(t.id)} style={{ accentColor: 'var(--cl-gold)' }} />
     )},
-    { key: 'date', label: 'transaction.date', render: (row: Transaction) => <span className="cell-date">{formatDate(row.date)}</span> },
+    { key: 'date', label: 'transaction.date', render: (row: Transaction) => <span className="cell-date">{formatDate(row.date || '')}</span> },
     { key: 'documentNumber', label: 'transaction.docNum' },
     { key: 'vendorName', label: 'transaction.vendor', render: (row: Transaction) => <span className="cell-vendor-name">{row.vendorName}</span> },
     { key: 'description', label: 'transaction.description' },
@@ -87,10 +87,10 @@ export default function TransactionsPage() {
           </span>
           {selected.size > 0 && (
             <div style={{ display: 'flex', gap: 8 }}>
-              <button className="btn btn-sm btn-outline" onClick={() => bulkAction('verify')}>
+              <button className="btn btn-sm btn-outline" onClick={() => bulkAction('VERIFIED')}>
                 {tr('transaction.bulkVerify', lang)}
               </button>
-              <button className="btn btn-sm btn-outline" onClick={() => bulkAction('flag')}>
+              <button className="btn btn-sm btn-outline" onClick={() => bulkAction('FLAGGED')}>
                 {tr('transaction.bulkFlag', lang)}
               </button>
             </div>
@@ -128,7 +128,7 @@ export default function TransactionsPage() {
               <PcmSelector
                 value={`${editingPcm.pcmAccount?.accountNumber || ''} - ${editingPcm.pcmAccount?.accountName || ''}`}
                 onChange={(code, label) => {
-                  api.patch(`/transactions/${editingPcm.id}`, { pcmAccountCode: code, pcmAccountLabel: label })
+                  api.put(`/transactions/${editingPcm.id}`, { pcmAccountId: code })
                     .then(fetchTxns);
                   setEditingPcm(null);
                 }}
