@@ -78,7 +78,7 @@ router.get('/projects/:projectId/transactions', async (req: Request, res: Respon
       prisma.transaction.count({ where }),
     ]);
 
-    res.json({ transactions, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({ data: transactions, transactions, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (err) {
     console.error('List transactions error:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des transactions' });

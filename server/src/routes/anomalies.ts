@@ -37,7 +37,7 @@ router.get('/projects/:projectId/anomalies', async (req: Request, res: Response)
       ],
     });
 
-    res.json({ anomalies });
+    res.json({ data: anomalies, anomalies });
   } catch (err) {
     console.error('List anomalies error:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des anomalies' });

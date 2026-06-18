@@ -85,7 +85,7 @@ router.get('/projects/:projectId/documents', async (req: Request, res: Response)
       },
       orderBy: { createdAt: 'desc' },
     });
-    res.json({ documents });
+    res.json({ data: documents, documents });
   } catch (err) {
     console.error('List documents error:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des documents' });

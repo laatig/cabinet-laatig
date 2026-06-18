@@ -21,7 +21,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
-    res.json({ notifications, unreadCount });
+    res.json({ data: notifications, notifications, unreadCount });
   } catch (err) {
     console.error('List notifications error:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des notifications' });

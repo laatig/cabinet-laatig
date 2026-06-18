@@ -21,7 +21,7 @@ router.get('/clients', async (_req: Request, res: Response) => {
       },
       orderBy: { createdAt: 'desc' },
     });
-    res.json({ clients });
+    res.json({ data: clients, clients });
   } catch (err) {
     console.error('Owner clients error:', err);
     res.status(500).json({ error: 'Erreur serveur' });
@@ -52,7 +52,7 @@ router.get('/projects', async (_req: Request, res: Response) => {
       },
       orderBy: { updatedAt: 'desc' },
     });
-    res.json({ projects });
+    res.json({ data: projects, projects });
   } catch (err) {
     console.error('Owner projects error:', err);
     res.status(500).json({ error: 'Erreur serveur' });
@@ -75,7 +75,7 @@ router.get('/validation-queue', async (_req: Request, res: Response) => {
       },
       orderBy: { updatedAt: 'asc' },
     });
-    res.json({ documents });
+    res.json({ data: documents, documents });
   } catch (err) {
     console.error('Validation queue error:', err);
     res.status(500).json({ error: 'Erreur serveur' });
@@ -296,7 +296,7 @@ router.get('/signatures', async (_req: Request, res: Response) => {
       },
       orderBy: { signedAt: 'desc' },
     });
-    res.json({ signatures });
+    res.json({ data: signatures, signatures });
   } catch (err) {
     console.error('Signatures error:', err);
     res.status(500).json({ error: 'Erreur serveur' });

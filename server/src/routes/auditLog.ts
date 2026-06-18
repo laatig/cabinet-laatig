@@ -44,7 +44,7 @@ router.get('/', async (req: Request, res: Response) => {
       prisma.auditLog.count({ where }),
     ]);
 
-    res.json({ logs, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+    res.json({ data: logs, logs, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (err) {
     console.error('List audit logs error:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des logs' });

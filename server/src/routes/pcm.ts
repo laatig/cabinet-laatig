@@ -11,7 +11,7 @@ router.get('/', async (_req: Request, res: Response) => {
     const accounts = await prisma.pcmAccount.findMany({
       orderBy: [{ classNumber: 'asc' }, { accountNumber: 'asc' }],
     });
-    res.json({ accounts });
+    res.json({ data: accounts, accounts });
   } catch (err) {
     console.error('List PCM accounts error:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des comptes PCM' });
@@ -38,7 +38,7 @@ router.get('/search', async (req: Request, res: Response) => {
       orderBy: [{ classNumber: 'asc' }, { accountNumber: 'asc' }],
       take: 50,
     });
-    res.json({ accounts });
+    res.json({ data: accounts, accounts });
   } catch (err) {
     console.error('Search PCM error:', err);
     res.status(500).json({ error: 'Erreur lors de la recherche' });

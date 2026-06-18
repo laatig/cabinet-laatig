@@ -16,7 +16,7 @@ router.get('/', async (req: Request, res: Response) => {
       },
       orderBy: { updatedAt: 'desc' },
     });
-    res.json({ projects });
+      res.json({ data: projects, projects });
   } catch (err) {
     console.error('List projects error:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des projets' });

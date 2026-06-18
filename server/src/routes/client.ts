@@ -23,7 +23,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       where: { userId: req.user!.userId, isRead: false },
     });
 
-    res.json({ projects, unreadNotifications });
+    res.json({ data: projects, projects, unreadNotifications });
   } catch (err) {
     console.error('Client dashboard error:', err);
     res.status(500).json({ error: 'Erreur serveur' });
@@ -68,7 +68,7 @@ router.get('/notifications', async (req: Request, res: Response) => {
       take: 50,
     });
     const unreadCount = notifications.filter(n => !n.isRead).length;
-    res.json({ notifications, unreadCount });
+    res.json({ data: notifications, notifications, unreadCount });
   } catch (err) {
     console.error('Client notifications error:', err);
     res.status(500).json({ error: 'Erreur serveur' });
