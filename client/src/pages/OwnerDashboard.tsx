@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 import api from '../lib/api';
+import MiniChart from '../components/ui/MiniChart';
 import type { DashboardStats } from '../types';
 
 export default function OwnerDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const { lang } = useLanguage();
+  const [stats, setStats] = useState<any>(null);
   const [queue, setQueue] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -16,7 +20,7 @@ export default function OwnerDashboard() {
     ]).then(([sRes, qRes]) => {
       setStats(sRes.data);
       setQueue(qRes.data.documents);
-    }).catch(() => setError('Erreur chargement dashboard')).finally(() => setLoading(false));
+    }).catch(() => setError(t('common.error', lang))).finally(() => setLoading(false));
   }, []);
 
   const handleApprove = async (id: string) => {
@@ -29,7 +33,7 @@ export default function OwnerDashboard() {
   };
 
   const handleReject = async (id: string) => {
-    const comment = prompt('Motif du rejet :');
+    const comment = prompt(t('common.error', lang));
     if (!comment) return;
     try {
       await api.post(`/owner/documents/${id}/reject`, { comment });
@@ -49,37 +53,53 @@ export default function OwnerDashboard() {
     <div className="page-content">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Tableau de bord propriétaire</h1>
-          <p className="page-subtitle">Gestion des dossiers clients</p>
+          <h1 className="page-title">{t('dashboard.title', lang)}</h1>
+          <p className="page-subtitle">{t('nav.main', lang)}</p>
         </div>
+        <div className="page-gold-rule" />
       </div>
 
       <div className="dashboard-kpis" style={{ marginBottom: 32 }}>
         <div className="kpi-card">
           <div className="kpi-value">{stats?.totalClients || 0}</div>
-          <div className="kpi-label">Clients</div>
+          <div className="kpi-label">{t('clients.title', lang)}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value">{stats?.totalProjects || 0}</div>
-          <div className="kpi-label">Dossiers</div>
+          <div className="kpi-label">{t('nav.projects', lang)}</div>
         </div>
         <div className="kpi-card" style={{ borderColor: queue.length > 0 ? 'var(--cl-gold)' : undefined }}>
           <div className="kpi-value">{stats?.pendingReviews || 0}</div>
-          <div className="kpi-label">En attente de validation</div>
+          <div className="kpi-label">{t('project.revision', lang)}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value">{stats?.signedProjects || 0}</div>
-          <div className="kpi-label">Signés</div>
+          <div className="kpi-label">{t('project.validate', lang)}</div>
         </div>
       </div>
 
+      {stats?.monthlyLabels && (
+        <div className="section-card" style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--cl-gold)' }}>
+            {t('dashboard.title', lang)}
+          </h2>
+          <MiniChart
+            data={stats.monthlyLabels.map((label: string, i: number) => ({
+              label,
+              value: stats.monthlyCounts[i] || 0,
+            }))}
+            height={120}
+          />
+        </div>
+      )}
+
       <div className="section-card" style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--cl-gold)' }}>
-          File d'attente de validation ({queue.length})
+          {t('nav.documents', lang)} ({queue.length})
         </h2>
         {queue.length === 0 ? (
           <div className="empty-state">
-            <p style={{ fontSize: 14 }}>Aucun document en attente de validation.</p>
+            <p style={{ fontSize: 14 }}>{t('table.noData', lang)}</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -104,15 +124,15 @@ export default function OwnerDashboard() {
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <Link to={`/review/${doc.id}`} className="table-action-btn" style={{ textDecoration: 'none' }}>
-                      Examiner
+                      {t('common.view', lang)}
                     </Link>
                     <button className="table-action-btn" style={{ color: 'var(--cl-success)' }}
                       onClick={() => handleApprove(doc.id)}>
-                      Approuver
+                      {t('common.confirm', lang)}
                     </button>
                     <button className="table-action-btn" style={{ color: 'var(--cl-danger)' }}
                       onClick={() => handleReject(doc.id)}>
-                      Rejeter
+                      {t('common.delete', lang)}
                     </button>
                   </div>
                 </div>
@@ -124,13 +144,13 @@ export default function OwnerDashboard() {
 
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
         <Link to="/owner/clients" className="login-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
-          Voir les clients
+          {t('clients.title', lang)}
         </Link>
         <Link to="/owner/projects" className="login-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
-          Voir tous les dossiers
+          {t('ownerProjects.title', lang)}
         </Link>
         <Link to="/owner/signatures" className="login-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
-          Registre des signatures
+          {t('signatures.title', lang)}
         </Link>
       </div>
     </div>

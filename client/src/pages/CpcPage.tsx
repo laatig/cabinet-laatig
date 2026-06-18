@@ -39,7 +39,7 @@ export default function CpcPage() {
         </div>
       ))}
       <div className="bilan-row total">
-        <span className="bilan-label">Total {title}</span>
+        <span className="bilan-label">{t('journal.total', lang)} {title}</span>
         <span className="bilan-amount">{formatNumber(total)}</span>
       </div>
     </div>

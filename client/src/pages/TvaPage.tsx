@@ -119,7 +119,7 @@ export default function TvaPage() {
         </>
       ) : (
         <div className="empty-state">
-          <div className="empty-state-title">Aucune déclaration</div>
+          <div className="empty-state-title">{t('table.noData', lang)}</div>
         </div>
       )}
     </div>

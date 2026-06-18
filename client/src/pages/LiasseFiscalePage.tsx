@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 import { formatNumber } from '../lib/utils';
 import api from '../lib/api';
 import { Download, ArrowLeft, FileText, Printer } from 'lucide-react';
@@ -24,6 +26,7 @@ const sectionGradients: Record<string, string> = {
 export default function LiasseFiscalePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { lang } = useLanguage();
   const [sections, setSections] = useState<LiasseSection[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,16 +53,16 @@ export default function LiasseFiscalePage() {
               <ArrowLeft size={16} />
             </button>
             <div>
-              <div className="page-title">Liasse Fiscale</div>
+              <div className="page-title">{t('export.fiscal', lang) || 'Liasse Fiscale'}</div>
               <div className="page-gold-rule" />
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-outline">
-              <Printer size={16} /> Imprimer
+              <Printer size={16} /> {t('common.print', lang)}
             </button>
             <button className="btn btn-primary" onClick={() => window.open(`/api/projects/${id}/export/liasse-fiscale`, '_blank')}>
-              <Download size={16} /> Télécharger (Excel)
+              <Download size={16} /> {t('common.download', lang)}
             </button>
           </div>
         </div>

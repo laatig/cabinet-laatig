@@ -36,7 +36,25 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
       prisma.document.count({ where: { status: 'AWAITING_REVIEW' } }),
       prisma.project.count({ where: { dossierStatus: 'SIGNED' } }),
     ]);
-    res.json({ totalClients, totalProjects, pendingReviews, signedProjects });
+
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const monthlyLabels: string[] = [];
+    const monthlyCounts: number[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const month = d.toLocaleString('fr-FR', { month: 'short' });
+      monthlyLabels.push(month);
+      const start = new Date(d.getFullYear(), d.getMonth(), 1);
+      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+      const count = await prisma.project.count({
+        where: { createdAt: { gte: start, lte: end } },
+      });
+      monthlyCounts.push(count);
+    }
+
+    res.json({ totalClients, totalProjects, pendingReviews, signedProjects, monthlyLabels, monthlyCounts });
   } catch (err) {
     console.error('Owner dashboard error:', err);
     res.status(500).json({ error: 'Erreur serveur' });

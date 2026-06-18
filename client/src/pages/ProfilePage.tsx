@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 import api from '../lib/api';
 import { Save, User, Building2, Phone, FileText, BadgeCheck } from 'lucide-react';
 
@@ -14,6 +16,7 @@ interface ProfileData {
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
+  const { lang } = useLanguage();
   const [form, setForm] = useState<ProfileData>({
     fullName: '', phoneNumber: '', raisonSociale: '',
     clientICE: '', clientRC: '', formeJuridique: '',
@@ -34,7 +37,7 @@ export default function ProfilePage() {
         clientRC: u.clientRC || '',
         formeJuridique: u.formeJuridique || '',
       });
-    }).catch(() => setError('Erreur chargement profil')).finally(() => setLoading(false));
+    }).catch(() => setError(t('common.error', lang))).finally(() => setLoading(false));
   }, []);
 
   const handleSave = async () => {
@@ -59,7 +62,7 @@ export default function ProfilePage() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">Mon profil</div>
+        <div className="page-title">{t('settings.profile', lang)}</div>
         <div className="page-gold-rule" />
       </div>
 
@@ -67,7 +70,7 @@ export default function ProfilePage() {
         <div className="panel">
           <div className="panel-header">
             <span className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <User size={18} /> Informations personnelles
+              <User size={18} /> {t('settings.profile', lang)}
             </span>
           </div>
           <div className="panel-body">
@@ -76,7 +79,7 @@ export default function ProfilePage() {
               <input className="form-input" value={user?.email || ''} disabled style={{ opacity: 0.6 }} />
             </div>
             <div className="form-group">
-              <label className="form-label">Nom complet</label>
+              <label className="form-label">{t('login.name', lang)}</label>
               <input className="form-input" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
             </div>
             <div className="form-group">
@@ -126,9 +129,9 @@ export default function ProfilePage() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-            <Save size={16} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
+            <Save size={16} /> {saving ? t('common.loading', lang) : t('common.save', lang)}
           </button>
-          {saved && <span style={{ fontSize: 13, color: 'var(--cl-success)' }}>✓ Profil mis à jour</span>}
+          {saved && <span style={{ fontSize: 13, color: 'var(--cl-success)' }}>✓ {t('common.save', lang)}</span>}
         </div>
       </div>
     </div>

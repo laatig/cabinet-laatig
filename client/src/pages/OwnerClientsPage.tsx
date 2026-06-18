@@ -90,7 +90,7 @@ export default function OwnerClientsPage() {
                   <div className="audit-trail-action" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <strong>{client.fullName}</strong>
                     {client.emailVerified && (
-                      <span className="status-pill verified" style={{ fontSize: 9 }}>Vérifié</span>
+                      <span className="status-pill verified" style={{ fontSize: 9 }}>{t('common.confirm', lang)}</span>
                     )}
                     {client.raisonSociale && (
                       <span style={{ fontSize: 12, color: 'var(--cl-text-muted)' }}>{client.raisonSociale}</span>

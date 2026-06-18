@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 import api from '../lib/api';
 import type { Document } from '../types';
 
 export default function DocumentReviewPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { lang } = useLanguage();
   const [doc, setDoc] = useState<Document | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -13,9 +16,9 @@ export default function DocumentReviewPage() {
   useEffect(() => {
     api.get(`/documents/${id}`)
       .then(res => setDoc(res.data.document))
-      .catch(() => setError('Erreur chargement document'))
+      .catch(() => setError(t('common.error', lang)))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, lang]);
 
   const handleCorrect = async (fieldId: string, value: string) => {
     const extractionId = doc?.extractions?.[0]?.id;
@@ -37,7 +40,7 @@ export default function DocumentReviewPage() {
   };
 
   const handleReject = async () => {
-    const comment = prompt('Motif du rejet :');
+    const comment = prompt(t('common.error', lang));
     if (!comment) return;
     try {
       await api.post(`/owner/documents/${id}/reject`, { comment });
@@ -58,7 +61,7 @@ export default function DocumentReviewPage() {
   if (!doc) {
     return (
       <div className="page-content">
-        <p>Document introuvable</p>
+        <p>{t('common.error', lang)}</p>
       </div>
     );
   }
@@ -69,15 +72,16 @@ export default function DocumentReviewPage() {
     <div className="page-content">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Examen du document</h1>
+          <h1 className="page-title">{t('nav.documents', lang)}</h1>
           <p className="page-subtitle">{doc.fileName} - {doc.category}</p>
         </div>
+        <div className="page-gold-rule" />
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="login-btn" style={{ background: 'var(--cl-success)' }} onClick={handleApprove}>
-            Approuver
+            {t('common.confirm', lang)}
           </button>
           <button className="login-btn" style={{ background: 'var(--cl-danger)' }} onClick={handleReject}>
-            Rejeter
+            {t('common.delete', lang)}
           </button>
         </div>
       </div>
@@ -85,37 +89,37 @@ export default function DocumentReviewPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
         <div className="section-card">
           <h3 style={{ color: 'var(--cl-gold)', marginBottom: 16, fontSize: 15, fontWeight: 600 }}>
-            Document original
+            {t('nav.documents', lang)}
           </h3>
           <div style={{ padding: 16, background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)', minHeight: 300 }}>
             <p style={{ color: 'var(--cl-text-secondary)', fontSize: 13 }}>
               {doc.fileType === 'image' || doc.fileType === 'pdf' ? (
-                <span>Fichier : {doc.fileName} ({doc.fileType})</span>
+                <span>{t('common.view', lang)}: {doc.fileName} ({doc.fileType})</span>
               ) : (
-                <span>Format non affichable : {doc.fileType}</span>
+                <span>{doc.fileType}</span>
               )}
             </p>
             <p style={{ color: 'var(--cl-text-muted)', fontSize: 12, marginTop: 8 }}>
-              Version {doc.version} - Categorie : {doc.category} - Exercice {doc.fiscalYear}
+              v{doc.version} - {doc.category} - {doc.fiscalYear}
             </p>
           </div>
         </div>
 
         <div className="section-card">
           <h3 style={{ color: 'var(--cl-gold)', marginBottom: 16, fontSize: 15, fontWeight: 600 }}>
-            Donnees extraites par l IA
+            {t('pcm.suggestion', lang)}
             {extraction && (
               <span style={{
                 fontSize: 12, fontWeight: 400, marginLeft: 12,
                 color: extraction.confidence > 0.8 ? 'var(--cl-success)' : 'var(--cl-warning)',
               }}>
-                Confiance : {(extraction.confidence * 100).toFixed(0)}%
+                {t('pcm.confidence', lang)}: {(extraction.confidence * 100).toFixed(0)}%
               </span>
             )}
           </h3>
 
           {!extraction ? (
-            <p style={{ color: 'var(--cl-text-secondary)' }}>Aucune extraction disponible.</p>
+            <p style={{ color: 'var(--cl-text-secondary)' }}>{t('table.noData', lang)}</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {extraction.fields.map(field => (

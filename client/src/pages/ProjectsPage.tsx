@@ -60,7 +60,7 @@ export default function ProjectsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer ce projet ?')) return;
+    if (!confirm(t('common.delete', lang))) return;
     await api.delete(`/projects/${id}`);
     fetchData();
   };
@@ -113,13 +113,13 @@ export default function ProjectsPage() {
         <div className="project-grid">
           {filtered.map((p) => (
             <div key={p.id} className="project-card" onClick={() => navigate(`/projects/${p.id}`)}>
-              <div className="project-card-title">{p.clientName || `Projet #${p.id}`}</div>
+              <div className="project-card-title">{p.clientName || `${t('project.list', lang)} #${p.id}`}</div>
               <div className="project-card-client">
                 {p.clientICE && `ICE: ${p.clientICE}`}
               </div>
               <div className="project-card-meta">
                 <span className="project-card-attr">{p.fiscalYearStart ? new Date(p.fiscalYearStart).getFullYear() : ''}</span>
-                <span className="project-card-attr">{p.auditType === 'legal_audit' ? 'Audit Légal' : p.auditType}</span>
+                <span className="project-card-attr">{p.auditType}</span>
                 <span className={`status-pill ${getStatusClass(p.status)}`}>{p.status}</span>
                 <span className={`status-pill ${getStatusClass(p.dossierStatus)}`}>{p.dossierStatus}</span>
               </div>
@@ -149,7 +149,7 @@ export default function ProjectsPage() {
       >
         <div className="form-group">
           <label className="form-label">{t('project.client', lang)}</label>
-          <input className="form-input" value={form.clientName} onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))} placeholder="Nom du client" />
+              <input className="form-input" value={form.clientName} onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))} placeholder={t('project.client', lang)} />
         </div>
         <div className="form-row">
           <div className="form-group">
@@ -157,7 +157,7 @@ export default function ProjectsPage() {
             <input className="form-input" type="date" value={form.fiscalYearStart} onChange={(e) => setForm((f) => ({ ...f, fiscalYearStart: e.target.value }))} />
           </div>
           <div className="form-group">
-            <label className="form-label">Date fin</label>
+            <label className="form-label">{t('tva.period', lang)}</label>
             <input className="form-input" type="date" value={form.fiscalYearEnd} onChange={(e) => setForm((f) => ({ ...f, fiscalYearEnd: e.target.value }))} />
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function ProjectsPage() {
         </div>
         <div className="form-group">
           <label className="form-label">{t('project.notes', lang)}</label>
-          <textarea className="form-input" placeholder="Notes (optionnel)" rows={3} />
+          <textarea className="form-input" placeholder={t('project.notes', lang)} rows={3} />
         </div>
       </Modal>
     </div>

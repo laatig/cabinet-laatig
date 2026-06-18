@@ -70,7 +70,7 @@ export default function AuditTrailPage() {
           ) : filtered.length === 0 ? (
             <div className="empty-state">
               <History size={48} />
-              <div className="empty-state-title">Aucune entrée</div>
+              <div className="empty-state-title">{t('table.noData', lang)}</div>
             </div>
           ) : (
             <div style={{ padding: '0 20px' }}>

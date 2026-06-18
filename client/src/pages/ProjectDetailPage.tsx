@@ -16,8 +16,6 @@ import {
 } from 'lucide-react';
 import type { Project } from '../types';
 
-const STATUS_STEPS = ['Dépôt', 'Extraction', 'Révision', 'Validation', 'Signature'];
-
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const { lang } = useLanguage();
@@ -32,12 +30,14 @@ export default function ProjectDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const STATUS_STEPS = [t('common.loading', lang), t('nav.transactions', lang), t('nav.anomalies', lang), t('common.confirm', lang), t('project.validate', lang)];
+
   if (loading) {
     return <div style={{ padding: 40, textAlign: 'center' }}><div className="gold-spinner" /></div>;
   }
 
   if (!project) {
-    return <div className="empty-state"><div className="empty-state-title">Projet introuvable</div></div>;
+    return <div className="empty-state"><div className="empty-state-title">{t('common.error', lang)}</div></div>;
   }
 
   const dossierIdx = ['DOCUMENTS_RECEIVED', 'AI_ANALYSIS', 'IN_REVIEW', 'VALIDATED', 'SIGNED'].indexOf(project.dossierStatus);
@@ -60,12 +60,12 @@ export default function ProjectDetailPage() {
       <div className="kpi-grid">
         <KpiCard label={t('nav.transactions', lang)} value={String(project._count?.transactions || 0)} icon={<ArrowLeftRight />} />
         <KpiCard label={t('nav.anomalies', lang)} value={String(project._count?.anomalies || 0)} icon={<AlertTriangle />} />
-        <KpiCard label="Documents" value={String(project._count?.documents || 0)} icon={<FileText />} />
+        <KpiCard label={t('nav.documents', lang)} value={String(project._count?.documents || 0)} icon={<FileText />} />
       </div>
 
       <div className="panel" style={{ marginBottom: 24 }}>
         <div className="panel-header">
-          <span className="panel-title">Actions</span>
+          <span className="panel-title">{t('common.actions', lang)}</span>
         </div>
         <div className="panel-body" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={() => navigate(`/projects/${id}/documents`)}>

@@ -80,19 +80,19 @@ export default function SynthesePage() {
             <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
               <div className="kpi-card">
                 <div className="kpi-value">{stats.totalTransactions || 0}</div>
-                <div className="kpi-label">Transactions</div>
+                <div className="kpi-label">{t('nav.transactions', lang)}</div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-value">{stats.totalAnomalies || 0}</div>
-                <div className="kpi-label">Anomalies</div>
+                <div className="kpi-label">{t('nav.anomalies', lang)}</div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-value" style={{ color: 'var(--cl-success)' }}>{stats.verifiedTransactions || 0}</div>
-                <div className="kpi-label">Vérifiées</div>
+                <div className="kpi-label">{t('transaction.verify', lang)}</div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-value">{formatCurrency(stats.totalAmount || 0)}</div>
-                <div className="kpi-label">Montant total</div>
+                <div className="kpi-label">{t('transaction.amount', lang)}</div>
               </div>
             </div>
           )}

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 import { formatNumber } from '../lib/utils';
 import api from '../lib/api';
 import { Download, ArrowLeft, TrendingUp } from 'lucide-react';
@@ -14,6 +16,7 @@ const sectionColors: Record<string, string> = {
 export default function SigPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { lang } = useLanguage();
   const [entries, setEntries] = useState<SigEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -70,12 +73,12 @@ export default function SigPage() {
               <ArrowLeft size={16} />
             </button>
             <div>
-              <div className="page-title">Soldes Intermédiaires de Gestion (SIG)</div>
+              <div className="page-title">SIG</div>
               <div className="page-gold-rule" />
             </div>
           </div>
           <button className="btn btn-outline" onClick={() => window.open(`/api/projects/${id}/export/sig`, '_blank')}>
-            <Download size={16} /> Télécharger (Excel)
+            <Download size={16} /> {t('common.download', lang)}
           </button>
         </div>
       </div>
@@ -88,7 +91,7 @@ export default function SigPage() {
         <div className="panel" style={{ textAlign: 'center', padding: 40 }}>
           <TrendingUp size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
           <p style={{ color: 'var(--text-secondary)' }}>
-            Aucune donnée disponible. Les écritures comptables doivent être saisies pour calculer les SIG.
+            {t('table.noData', lang)}
           </p>
         </div>
       ) : (

@@ -60,19 +60,19 @@ export default function DashboardPage() {
             <KpiCard
               label={t('project.transactionsMonth', lang)}
               value="1 234"
-              sub="Ce mois-ci"
+              sub={t('common.period', lang)}
               icon={<ArrowLeftRight />}
             />
             <KpiCard
               label={t('project.anomaliesOpen', lang)}
               value={String(anomalyCount)}
-              sub="Non résolues"
+              sub={t('anomaly.ouvertes', lang)}
               icon={<AlertTriangle />}
             />
             <KpiCard
               label={t('project.tvaDue', lang)}
               value={formatCurrency(totalTva)}
-              sub="Ce trimestre"
+              sub={t('tva.period', lang)}
               icon={<Receipt />}
             />
           </div>
@@ -86,7 +86,7 @@ export default function DashboardPage() {
                 {logs.length === 0 ? (
                   <div className="empty-state" style={{ padding: 32 }}>
                     <Eye size={40} />
-                    <div className="empty-state-title" style={{ fontSize: 16 }}>Aucune activité</div>
+                    <div className="empty-state-title" style={{ fontSize: 16 }}>{t('table.noData', lang)}</div>
                   </div>
                 ) : (
                   logs.map((log) => (

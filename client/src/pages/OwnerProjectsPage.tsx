@@ -42,7 +42,7 @@ export default function OwnerProjectsPage() {
           <div>
             <div className="page-title">{t('ownerProjects.title', lang)}</div>
             {clientFilter && (
-              <div className="page-subtitle">Filtré par client</div>
+              <div className="page-subtitle">{t('table.search', lang)}</div>
             )}
             <div className="page-gold-rule" />
           </div>
@@ -74,7 +74,7 @@ export default function OwnerProjectsPage() {
         <div className="project-grid">
           {filtered.map((p) => (
             <div key={p.id} className="project-card" onClick={() => navigate(`/projects/${p.id}`)}>
-              <div className="project-card-title">{p.clientName || `Projet #${p.id}`}</div>
+              <div className="project-card-title">{p.clientName || `${t('project.list', lang)} #${p.id}`}</div>
               {p.user && (
                 <div className="project-card-client" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <User size={12} /> {p.user.fullName}
@@ -85,7 +85,7 @@ export default function OwnerProjectsPage() {
                   {p.fiscalYearStart ? new Date(p.fiscalYearStart).getFullYear() : ''}
                 </span>
                 <span className="project-card-attr">
-                  {p.auditType === 'legal_audit' ? 'Audit Légal' : p.auditType}
+                  {p.auditType}
                 </span>
                 <span className={`status-pill ${getStatusClass(p.status)}`}>{p.status}</span>
                 <span className={`status-pill ${getStatusClass(p.dossierStatus)}`}>{p.dossierStatus}</span>

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 import api from '../lib/api';
 import type { Project, Document } from '../types';
 import {
@@ -48,6 +50,7 @@ const FINANCIAL_STATEMENTS = [
 export default function ClientProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { lang } = useLanguage();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -59,7 +62,7 @@ export default function ClientProjectDetail() {
   const fetchProject = () => {
     api.get(`/client/projects/${id}`)
       .then(res => setProject(res.data.project))
-      .catch(() => setError('Erreur chargement projet'))
+      .catch(() => setError(t('common.error', lang)))
       .finally(() => setLoading(false));
   };
 
@@ -80,7 +83,7 @@ export default function ClientProjectDetail() {
       });
       fetchProject();
     } catch {
-      setError('Erreur lors du téléversement');
+      setError(t('common.error', lang));
     } finally {
       setUploading(false);
     }
@@ -92,7 +95,7 @@ export default function ClientProjectDetail() {
       await api.post(`/documents/${docId}/process`);
       fetchProject();
     } catch {
-      setError("Erreur lors de l'analyse du document");
+      setError(t('common.error', lang));
     } finally {
       setProcessingId(null);
     }
@@ -103,7 +106,7 @@ export default function ClientProjectDetail() {
     try {
       await api.post(`/projects/${id}/reports/generate-all`);
     } catch {
-      setError('Erreur lors de la génération');
+      setError(t('common.error', lang));
     } finally {
       setGenerating(false);
     }
@@ -121,7 +124,7 @@ export default function ClientProjectDetail() {
   }
 
   if (!project) {
-    return <div className="page-content"><p>Projet introuvable</p></div>;
+    return <div className="page-content"><p>{t('common.error', lang)}</p></div>;
   }
 
   return (
@@ -138,6 +141,7 @@ export default function ClientProjectDetail() {
           {dossierLabels[project.dossierStatus] || project.dossierStatus}
         </span>
       </div>
+      <div className="page-gold-rule" />
 
       {error && (
         <div style={{
@@ -151,15 +155,14 @@ export default function ClientProjectDetail() {
 
       <div className="section-card" style={{ marginBottom: 24 }}>
         <h2 style={{ color: 'var(--cl-gold)', fontSize: 16, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Upload size={18} /> Téléverser des documents comptables
+          <Upload size={18} /> {t('upload.title', lang)}
         </h2>
         <p style={{ fontSize: 13, color: 'var(--cl-text-secondary)', marginBottom: 16, lineHeight: 1.6 }}>
-          Déposez vos documents financiers (factures, relevés bancaires, bilans, etc.). 
-          Notre IA les analysera automatiquement pour générer vos états de synthèse.
+          {t('upload.drag', lang)}
         </p>
         <div style={{ display: 'flex', gap: 12, alignItems: 'end' }}>
           <div className="form-group" style={{ flex: 1 }}>
-            <label className="form-label">Catégorie</label>
+            <label className="form-label">{t('transaction.category', lang)}</label>
             <select className="form-input" value={category} onChange={e => setCategory(e.target.value)}>
               {Object.entries(categoryLabels).map(([k, v]) => (
                 <option key={k} value={k}>{v}</option>
@@ -169,7 +172,7 @@ export default function ClientProjectDetail() {
           <div className="form-group">
             <label className="form-label">&nbsp;</label>
             <label className="login-btn" style={{ cursor: 'pointer', display: 'inline-block', opacity: uploading ? 0.6 : 1 }}>
-              {uploading ? 'Téléversement...' : 'Choisir fichiers'}
+              {uploading ? t('common.loading', lang) : t('upload.browse', lang)}
               <input type="file" multiple onChange={handleUpload} hidden disabled={uploading} />
             </label>
           </div>
@@ -178,13 +181,13 @@ export default function ClientProjectDetail() {
 
       <div className="section-card" style={{ marginBottom: 24 }}>
         <h2 style={{ color: 'var(--cl-gold)', fontSize: 16, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FileText size={18} /> Documents ({documents?.length || 0})
+          <FileText size={18} /> {t('nav.documents', lang)} ({documents?.length || 0})
         </h2>
         {!documents || documents.length === 0 ? (
           <div className="empty-state">
             <Upload size={40} style={{ opacity: 0.3 }} />
-            <p style={{ fontSize: 14, marginTop: 8 }}>Aucun document téléversé.</p>
-            <p style={{ fontSize: 12, color: 'var(--cl-text-muted)' }}>Téléversez vos documents ci-dessus pour commencer.</p>
+            <p style={{ fontSize: 14, marginTop: 8 }}>{t('table.noData', lang)}</p>
+            <p style={{ fontSize: 12, color: 'var(--cl-text-muted)' }}>{t('upload.title', lang)}</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -210,14 +213,14 @@ export default function ClientProjectDetail() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className={`status-badge ${statusBadge[doc.status] || 'pending'}`}>
-                      {isProcessing ? 'Analyse...' : statusLabel[doc.status] || doc.status}
+                      {isProcessing ? t('common.loading', lang) : statusLabel[doc.status] || doc.status}
                     </span>
                     {canProcess && doc.status === 'UPLOADED' && (
                       <button
                         className="btn btn-primary btn-sm"
                         onClick={() => handleProcessDocument(doc.id)}
                         disabled={isProcessing}
-                        title="Analyser par IA"
+                        title={t('common.loading', lang)}
                       >
                         <Brain size={14} />
                       </button>
@@ -239,7 +242,7 @@ export default function ClientProjectDetail() {
       <div className="section-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 style={{ color: 'var(--cl-gold)', fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Download size={18} /> États de Synthèse
+            <Download size={18} /> {t('synthese.title', lang)}
           </h2>
           {hasExtractions && (
             <button
@@ -248,17 +251,16 @@ export default function ClientProjectDetail() {
               disabled={generating}
             >
               <RefreshCw size={14} className={generating ? 'spin' : ''} />
-              {generating ? 'Génération...' : 'Générer tout'}
+              {generating ? t('export.generating', lang) : t('export.generate', lang)}
             </button>
           )}
         </div>
         {!hasExtractions ? (
           <div className="empty-state">
             <FileText size={40} style={{ opacity: 0.3 }} />
-            <p style={{ fontSize: 14, marginTop: 8 }}>Aucune donnée extraite</p>
+            <p style={{ fontSize: 14, marginTop: 8 }}>{t('table.noData', lang)}</p>
             <p style={{ fontSize: 12, color: 'var(--cl-text-muted)', maxWidth: 400, textAlign: 'center' }}>
-              Téléversez et analysez vos documents avec l'IA pour générer automatiquement 
-              vos états de synthèse : Bilan, CPC, Balance, Journal, TVA et plus.
+              {t('upload.title', lang)}
             </p>
           </div>
         ) : (
@@ -288,7 +290,7 @@ export default function ClientProjectDetail() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--cl-text-primary)' }}>{stmt.label}</div>
-                    <div style={{ fontSize: 11, color: 'var(--cl-text-muted)', marginTop: 2 }}>Cliquer pour voir</div>
+                    <div style={{ fontSize: 11, color: 'var(--cl-text-muted)', marginTop: 2 }}>{t('common.view', lang)}</div>
                   </div>
                   <ArrowRight size={14} style={{ color: 'var(--cl-gold-dim)', opacity: 0.5 }} />
                 </div>

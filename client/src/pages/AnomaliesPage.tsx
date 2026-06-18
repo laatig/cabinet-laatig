@@ -83,7 +83,7 @@ export default function AnomaliesPage() {
         </div>
         <div className="kpi-card">
           <div className="kpi-value">{anomalies.length}</div>
-          <div className="kpi-label">Total</div>
+          <div className="kpi-label">{t('journal.total', lang)}</div>
         </div>
       </div>
 
@@ -172,13 +172,13 @@ export default function AnomaliesPage() {
         }
       >
         <div className="form-group">
-          <label className="form-label">Explication / Plan d'action</label>
+          <label className="form-label">{t('project.notes', lang)}</label>
           <textarea
             className="form-input"
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             rows={5}
-            placeholder="Décrivez le plan d'action ou l'explication..."
+            placeholder={t('project.notes', lang)}
           />
         </div>
       </Modal>

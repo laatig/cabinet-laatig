@@ -38,25 +38,25 @@ export default function SettingsPage() {
     setPasswordMsg('');
     setPasswordError('');
     if (!currentPassword || !newPassword) {
-      setPasswordError('Veuillez remplir tous les champs');
+      setPasswordError(t('common.error', lang));
       return;
     }
     if (newPassword.length < 8) {
-      setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
+      setPasswordError(t('common.error', lang));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError('Les mots de passe ne correspondent pas');
+      setPasswordError(t('common.error', lang));
       return;
     }
     try {
       await api.post('/auth/change-password', { currentPassword, newPassword });
-      setPasswordMsg('Mot de passe modifié avec succès');
+      setPasswordMsg(t('common.save', lang));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch {
-      setPasswordError('Mot de passe actuel incorrect');
+      setPasswordError(t('common.error', lang));
     }
   };
 
@@ -134,10 +134,10 @@ export default function SettingsPage() {
                   className="form-input"
                   value={apiKey}
                   readOnly
-                  placeholder="Cliquer sur Générer pour créer une clé"
+                  placeholder={t('settings.apiKey', lang)}
                   style={{ fontFamily: 'monospace', fontSize: 12 }}
                 />
-                <button className="btn btn-outline" onClick={handleGenerateKey}>Générer</button>
+                <button className="btn btn-outline" onClick={handleGenerateKey}>{t('common.create', lang)}</button>
               </div>
             </div>
           </div>

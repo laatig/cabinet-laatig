@@ -67,7 +67,7 @@ export default function BalancePage() {
                 <thead>
                   <tr>
                     <th>{t('balance.classe', lang)}</th>
-                    <th>Libellé</th>
+                    <th>{t('transaction.description', lang)}</th>
                     <th style={{ textAlign: 'right' }}>{t('balance.debit', lang)}</th>
                     <th style={{ textAlign: 'right' }}>{t('balance.credit', lang)}</th>
                     <th style={{ textAlign: 'right' }}>{t('balance.soldeDebit', lang)}</th>
@@ -78,10 +78,10 @@ export default function BalancePage() {
                   {classes.map((cls) => (
                     grouped[cls]?.length > 0 ? (
                       <>
-                        <tr><td colSpan={6} className="livre-account-header">Classe {cls}</td></tr>
+                        <tr><td colSpan={6} className="livre-account-header">{t('balance.classe', lang)} {cls}</td></tr>
                         {renderRows(grouped[cls])}
                         <tr className="bilan-row subtotal">
-                          <td colSpan={2} style={{ textAlign: 'right' }}>Sous-total Classe {cls}</td>
+                          <td colSpan={2} style={{ textAlign: 'right' }}>{t('journal.subtotal', lang)} {cls}</td>
                           <td style={{ textAlign: 'right' }}>{formatNumber(grouped[cls].reduce((s, e) => s + e.debit, 0))}</td>
                           <td style={{ textAlign: 'right' }}>{formatNumber(grouped[cls].reduce((s, e) => s + e.credit, 0))}</td>
                           <td style={{ textAlign: 'right' }}>{formatNumber(grouped[cls].reduce((s, e) => s + e.soldeDebit, 0))}</td>

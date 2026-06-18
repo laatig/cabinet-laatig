@@ -96,7 +96,7 @@ export default function OwnerSignaturesPage() {
                 <div className="audit-trail-content">
                   <div className="audit-trail-action">
                     <strong>{s.fullName}</strong> — {s.project?.clientName || 'Projet'}
-                    <span className="status-pill completed" style={{ marginLeft: 8, fontSize: 10 }}>Signé</span>
+                    <span className="status-pill completed" style={{ marginLeft: 8, fontSize: 10 }}>{t('project.validate', lang)}</span>
                   </div>
                   <div className="audit-trail-detail" style={{ display: 'flex', gap: 16, fontSize: 12 }}>
                     <span>{s.title}</span>

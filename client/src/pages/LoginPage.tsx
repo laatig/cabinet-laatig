@@ -30,7 +30,7 @@ export default function LoginPage() {
       navigate('/');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg || 'Identifiants incorrects');
+      setError(msg || t('common.error', lang));
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ export default function LoginPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères');
+      setError(t('common.error', lang));
       return;
     }
     setError('');
@@ -54,7 +54,7 @@ export default function LoginPage() {
       navigate('/');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg || "Erreur lors de l'inscription");
+      setError(msg || t('common.error', lang));
     } finally {
       setLoading(false);
     }
@@ -86,12 +86,12 @@ export default function LoginPage() {
       <div className="login-right">
         <div className="login-form-card">
           <div className="login-welcome">
-            {mode === 'login' ? 'Bienvenue' : 'Créer un compte'}
+            {mode === 'login' ? t('login.welcome', lang) : t('login.registerTitle', lang)}
           </div>
           <div className="login-subtitle">
             {mode === 'login'
-              ? 'Connectez-vous à votre espace Cabinet Laatig'
-              : 'Créez votre espace pour nous transmettre vos documents comptables'}
+              ? t('login.subtitle', lang)
+              : t('login.registerTitle', lang)}
           </div>
 
           {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
@@ -99,41 +99,41 @@ export default function LoginPage() {
           {mode === 'login' ? (
             <form onSubmit={handleLogin}>
               <div className="form-group">
-                <label className="form-label">Adresse e-mail</label>
+                <label className="form-label">{t('login.email', lang)}</label>
                 <input className="form-input" type="email" value={email}
                   onChange={e => setEmail(e.target.value)} placeholder="expert@cabinetlaatig.ma" required autoFocus />
               </div>
               <div className="form-group">
-                <label className="form-label">Mot de passe</label>
+                <label className="form-label">{t('login.password', lang)}</label>
                 <input className="form-input" type="password" value={password}
                   onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
               </div>
               <button className="btn btn-primary btn-full" type="submit" disabled={loading}>
-                {loading ? 'Connexion...' : 'Se connecter'}
+                {loading ? t('common.loading', lang) : t('login.submit', lang)}
               </button>
               <div style={{ textAlign: 'center', marginTop: 16 }}>
                 <button type="button" onClick={() => setMode('register')}
                   style={{ background: 'none', border: 'none', color: 'var(--cl-gold-dim)', cursor: 'pointer', fontSize: 12, letterSpacing: '0.04em' }}>
-                  Pas encore de compte ? Créer un espace
+                  {t('login.noAccount', lang)} {t('login.register', lang)}
                 </button>
               </div>
             </form>
           ) : (
             <form onSubmit={handleRegister}>
               <div className="form-group">
-                <label className="form-label">Nom complet *</label>
+                <label className="form-label">{t('login.name', lang)} *</label>
                 <input className="form-input" type="text" value={fullName} onChange={e => setFullName(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label className="form-label">Adresse e-mail *</label>
+                <label className="form-label">{t('login.email', lang)} *</label>
                 <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label className="form-label">Mot de passe *</label>
+                <label className="form-label">{t('login.password', lang)} *</label>
                 <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 6 caractères" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Raison sociale</label>
+                <label className="form-label">{t('login.name', lang)}</label>
                 <input className="form-input" type="text" value={raisonSociale} onChange={e => setRaisonSociale(e.target.value)} placeholder="Nom de votre entreprise" />
               </div>
               <div className="form-row">
@@ -165,12 +165,12 @@ export default function LoginPage() {
                 </div>
               </div>
               <button className="btn btn-primary btn-full" type="submit" disabled={loading}>
-                {loading ? 'Inscription...' : "S'inscrire"}
+                {loading ? t('common.loading', lang) : t('login.registerSubmit', lang)}
               </button>
               <div style={{ textAlign: 'center', marginTop: 16 }}>
                 <button type="button" onClick={() => setMode('login')}
                   style={{ background: 'none', border: 'none', color: 'var(--cl-gold-dim)', cursor: 'pointer', fontSize: 12, letterSpacing: '0.04em' }}>
-                  Déjà un compte ? Se connecter
+                  {t('login.noAccount', lang)} {t('login.submit', lang)}
                 </button>
               </div>
             </form>

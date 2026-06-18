@@ -105,15 +105,15 @@ export default function CahierTravailPage() {
           <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             <div className="kpi-card">
               <div className="kpi-value">{pcmClasses.length}</div>
-              <div className="kpi-label">Classes comptables</div>
+              <div className="kpi-label">{t('balance.classe', lang)}</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-value">{totalTransactions}</div>
-              <div className="kpi-label">Écritures</div>
+              <div className="kpi-label">{t('nav.transactions', lang)}</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-value">{formatCurrency(totalAmount)}</div>
-              <div className="kpi-label">Montant total</div>
+              <div className="kpi-label">{t('transaction.amount', lang)}</div>
             </div>
           </div>
 
@@ -157,11 +157,11 @@ export default function CahierTravailPage() {
                         <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                           <thead>
                             <tr>
-                              <th>Compte</th>
-                              <th>Libellé</th>
-                              <th>Fournisseur</th>
-                              <th>Date</th>
-                              <th style={{ textAlign: 'right' }}>Montant</th>
+                              <th>{t('transaction.pcm', lang)}</th>
+                              <th>{t('transaction.description', lang)}</th>
+                              <th>{t('transaction.vendor', lang)}</th>
+                              <th>{t('transaction.date', lang)}</th>
+                              <th style={{ textAlign: 'right' }}>{t('transaction.amount', lang)}</th>
                             </tr>
                           </thead>
                           <tbody>

@@ -49,10 +49,10 @@ export default function GrandLivrePage() {
               <table>
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Libellé</th>
-                    <th style={{ textAlign: 'right' }}>Débit</th>
-                    <th style={{ textAlign: 'right' }}>Crédit</th>
+                    <th>{t('transaction.date', lang)}</th>
+                    <th>{t('transaction.description', lang)}</th>
+                    <th style={{ textAlign: 'right' }}>{t('balance.debit', lang)}</th>
+                    <th style={{ textAlign: 'right' }}>{t('balance.credit', lang)}</th>
                     <th style={{ textAlign: 'right' }}>{t('grandlivre.solde', lang)}</th>
                   </tr>
                 </thead>

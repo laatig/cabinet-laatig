@@ -17,16 +17,16 @@ export default function AboutPage() {
   ];
 
   const languages = [
-    { name: 'Arabe', level: 'Langue maternelle', flag: '🇲🇦' },
-    { name: 'Français', level: 'Courant', flag: '🇫🇷' },
-    { name: 'Anglais', level: 'Professionnel', flag: '🇬🇧' },
+    { key: 'arabic', flag: '🇲🇦' },
+    { key: 'french', flag: '🇫🇷' },
+    { key: 'english', flag: '🇬🇧' },
     { name: 'Espagnol', level: 'Intermédiaire', flag: '🇪🇸' },
   ];
 
   return (
-    <div className="about-shell">
+      <div className="about-shell">
       <div className="page-header">
-        <h1 className="page-title">À Propos</h1>
+        <h1 className="page-title">{t('about.title', lang)}</h1>
         <div className="page-gold-rule" />
       </div>
 
@@ -58,7 +58,7 @@ export default function AboutPage() {
 
         <div>
           <div className="panel" style={{ marginBottom: 24 }}>
-            <div className="panel-title">Bio</div>
+            <div className="panel-title">{t('about.title', lang)}</div>
             <p style={{ fontSize: 13, color: 'var(--cl-text-secondary)', lineHeight: 1.8 }}>
               Mustapha Atiq est un expert-comptable et auditeur marocain spécialisé en audit financier,
               contrôle de gestion et technologies financières. Diplômé de l'Université Ibn Zohr d'Agadir,
@@ -70,7 +70,7 @@ export default function AboutPage() {
           </div>
 
           <div className="panel" style={{ marginBottom: 24 }}>
-            <div className="panel-title">Formation</div>
+            <div className="panel-title">{t('about.education', lang)}</div>
             <div className="timeline">
               {timeline.map((item, i) => (
                 <div key={i} className="timeline-item">
@@ -82,18 +82,22 @@ export default function AboutPage() {
           </div>
 
           <div className="panel" style={{ marginBottom: 24 }}>
-            <div className="panel-title">Langues</div>
-            {languages.map((langItem) => (
-              <div key={langItem.name} className="contact-item" style={{ marginTop: 6 }}>
-                <span>{langItem.flag}</span>
-                <span style={{ color: 'var(--cl-text-primary)', fontSize: 13 }}>{langItem.name}</span>
-                <span style={{ color: 'var(--cl-text-muted)', fontSize: 11, marginLeft: 4 }}>— {langItem.level}</span>
-              </div>
-            ))}
+            <div className="panel-title">{t('about.languages', lang)}</div>
+            {languages.map((langItem, idx) => (
+                <div key={langItem.key || idx} className="contact-item" style={{ marginTop: 6 }}>
+                  <span>{langItem.flag}</span>
+                  <span style={{ color: 'var(--cl-text-primary)', fontSize: 13 }}>
+                    {langItem.key ? t(`about.${langItem.key}`, lang) : langItem.name}
+                  </span>
+                  {langItem.level && (
+                    <span style={{ color: 'var(--cl-text-muted)', fontSize: 11, marginLeft: 4 }}>— {langItem.level}</span>
+                  )}
+                </div>
+              ))}
           </div>
 
           <div className="panel">
-            <div className="panel-title">Maîtrise logicielle</div>
+            <div className="panel-title">{t('about.skills', lang)}</div>
             <div className="skills-wrap">
               {skills.map((skill) => (
                 <span key={skill} className="skill-pill">{skill}</span>

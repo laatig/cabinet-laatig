@@ -53,12 +53,12 @@ export default function JournalPage() {
               <table>
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>N°</th>
-                    <th>Libellé</th>
-                    <th>Compte</th>
-                    <th style={{ textAlign: 'right' }}>Débit</th>
-                    <th style={{ textAlign: 'right' }}>Crédit</th>
+                    <th>{t('transaction.date', lang)}</th>
+                    <th>{t('transaction.docNum', lang)}</th>
+                    <th>{t('transaction.description', lang)}</th>
+                    <th>{t('transaction.pcm', lang)}</th>
+                    <th style={{ textAlign: 'right' }}>{t('balance.debit', lang)}</th>
+                    <th style={{ textAlign: 'right' }}>{t('balance.credit', lang)}</th>
                   </tr>
                 </thead>
                 <tbody>

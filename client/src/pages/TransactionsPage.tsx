@@ -110,7 +110,7 @@ export default function TransactionsPage() {
       <Modal
         open={editingPcm != null}
         onClose={() => setEditingPcm(null)}
-        title="Modifier le compte PCM"
+        title={tr('common.edit', lang)}
         footer={
           <button className="btn btn-primary" onClick={() => setEditingPcm(null)}>{tr('common.close', lang)}</button>
         }

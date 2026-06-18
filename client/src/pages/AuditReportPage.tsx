@@ -65,7 +65,7 @@ export default function AuditReportPage() {
             <div className="page-gold-rule" />
           </div>
           <button className="btn btn-outline" onClick={handleDownloadPdf} disabled={generating}>
-            <Download size={16} /> {generating ? 'Génération...' : t('common.download', lang)}
+            <Download size={16} />             {generating ? t('export.generating', lang) : t('common.download', lang)}
           </button>
         </div>
       </div>
@@ -84,19 +84,19 @@ export default function AuditReportPage() {
           <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 28 }}>
             <div className="kpi-card">
               <div className="kpi-value" style={{ color: '#FF6B6B' }}>{criticalAnomalies.length + highAnomalies.length}</div>
-              <div className="kpi-label">Points clés d'audit</div>
+              <div className="kpi-label">{t('audit.keyQuestions', lang)}</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-value" style={{ color: 'var(--cl-warning)' }}>{openCount}</div>
-              <div className="kpi-label">Non résolus</div>
+              <div className="kpi-label">{t('anomaly.ouvertes', lang)}</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-value" style={{ color: 'var(--cl-success)' }}>{acceptedCount}</div>
-              <div className="kpi-label">Acceptés</div>
+              <div className="kpi-label">{t('anomaly.acceptees', lang)}</div>
             </div>
             <div className="kpi-card">
               <div className="kpi-value" style={{ color: '#FF6B6B' }}>{rejectedCount}</div>
-              <div className="kpi-label">Rejetés</div>
+              <div className="kpi-label">{t('anomaly.rejetees', lang)}</div>
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export default function AuditReportPage() {
             </p>
             {project && (
               <div style={{ fontSize: 13, color: 'var(--cl-text-muted)', marginTop: 8 }}>
-                Audit {project.auditType === 'legal_audit' ? 'légal' : 'contractuel'} — Exercice {project.fiscalYearStart ? new Date(project.fiscalYearStart).getFullYear() : ''}
+                {t('project.auditType', lang)} — Exercice {project.fiscalYearStart ? new Date(project.fiscalYearStart).getFullYear() : ''}
               </div>
             )}
           </div>
@@ -119,7 +119,7 @@ export default function AuditReportPage() {
               <AlertTriangle size={18} style={{ color: 'var(--cl-warning)' }} /> {t('audit.keyQuestions', lang)}
             </h3>
             {criticalAnomalies.length === 0 && highAnomalies.length === 0 ? (
-              <p style={{ fontSize: 14, color: 'var(--cl-text-muted)' }}>Aucun point clé d'audit identifié.</p>
+              <p style={{ fontSize: 14, color: 'var(--cl-text-muted)' }}>{t('anomaly.none', lang)}</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {criticalAnomalies.map((a, idx) => (
